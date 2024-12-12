@@ -16,3 +16,7 @@ type Event struct {
 	UpdatedDate time.Time
 	DeletedDate *time.Time
 }
+
+func (e Event) GetUserId() uint64 {
+	return e.UserId
+}

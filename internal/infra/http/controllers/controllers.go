@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -15,9 +16,15 @@ type CtxKey struct {
 }
 
 var (
-	UserKey = CtxKey{Name: "user"}
-	SessKey = CtxKey{Name: "sess"}
+	UserKey  = CtxKey{Name: "user"}
+	SessKey  = CtxKey{Name: "sess"}
+	EventKey = CtxKey{Name: "event"}
 )
+
+func GetPathValFromCtx[T any](ctx context.Context) T {
+	val := ctx.Value(EventKey).(T)
+	return val
+}
 
 func Ok(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")

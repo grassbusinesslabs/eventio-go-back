@@ -3,6 +3,8 @@ package middlewares
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/BohdanBoriak/boilerplate-go-back/internal/app"
 	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
 	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
@@ -10,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/upper/db/v4"
-	"net/http"
 )
 
 func AuthMiddleware(ja *jwtauth.JWTAuth, as app.AuthService, us app.UserService) func(http.Handler) http.Handler {

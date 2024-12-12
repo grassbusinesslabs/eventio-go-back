@@ -21,12 +21,14 @@ type Container struct {
 }
 
 type Middlewares struct {
-	AuthMw func(http.Handler) http.Handler
+	AuthMw  func(http.Handler) http.Handler
+	EventMw func(http.Handler) http.Handler
 }
 
 type Services struct {
 	app.AuthService
 	app.UserService
+	app.EventService
 }
 
 type Controllers struct {
@@ -52,14 +54,17 @@ func New(conf config.Configuration) Container {
 	eventController := controllers.NewEventController(eventService)
 
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
+	eventMiddleware := middlewares.EventMiddleware(eventService)
 
 	return Container{
 		Middlewares: Middlewares{
-			AuthMw: authMiddleware,
+			AuthMw:  authMiddleware,
+			EventMw: eventMiddleware,
 		},
 		Services: Services{
 			authService,
 			userService,
+			eventService,
 		},
 		Controllers: Controllers{
 			authController,

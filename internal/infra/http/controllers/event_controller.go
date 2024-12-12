@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -88,31 +87,7 @@ func (c EventController) FindList() http.HandlerFunc {
 func (c EventController) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		updateEvent, err := requests.Bind(r, requests.EventRequest{}, domain.Event{})
-		if err != nil {
-			log.Printf("EventController: %s", err)
-			BadRequest(w, err)
-			return
-		}
-
-		eventId, err := strconv.ParseUint(chi.URLParam(r, "eventid"), 10, 64)
-		if err != nil {
-			log.Printf("EventController -> Update -> strconv.ParseUint: %s", err)
-			BadRequest(w, err)
-			return
-		}
-
-		user := r.Context().Value(UserKey).(domain.User)
-		event, err := c.eventService.Find(eventId)
-		if err != nil {
-			log.Printf("EventController -> Update -> c.eventService.Find: %s", err)
-			InternalServerError(w, err)
-			return
-		}
-		if user.Id != event.UserId {
-			err = errors.New("Access denied!")
-			Forbidden(w, err)
-			return
-		}
+		event := r.Context().Value(EventKey).(domain.Event)
 
 		event.Tytle = updateEvent.Tytle
 		event.Description = updateEvent.Description
@@ -135,28 +110,9 @@ func (c EventController) Update() http.HandlerFunc {
 
 func (c EventController) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		eventId, err := strconv.ParseUint(chi.URLParam(r, "eventid"), 10, 64)
-		if err != nil {
-			log.Printf("EventController -> Delete -> strconv.ParseUint: %s", err)
-			BadRequest(w, err)
-			return
-		}
+		event := r.Context().Value(EventKey).(domain.Event)
 
-		user := r.Context().Value(UserKey).(domain.User)
-		event, err := c.eventService.Find(eventId)
-		if err != nil {
-			log.Printf("EventController -> Delete -> c.eventService.Find: %s", err)
-			InternalServerError(w, err)
-			return
-		}
-		if user.Id != event.UserId {
-			err = errors.New("Access denied!")
-			Forbidden(w, err)
-			return
-		}
-		//e := r.Context().Value(eventId).(domain.Event)
-
-		err = c.eventService.Delete(eventId)
+		err := c.eventService.Delete(event.EventId)
 		if err != nil {
 			log.Printf("EventController: %s", err)
 			InternalServerError(w, err)

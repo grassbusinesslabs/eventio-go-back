@@ -10,7 +10,9 @@ import (
 
 	"github.com/BohdanBoriak/boilerplate-go-back/config"
 	"github.com/BohdanBoriak/boilerplate-go-back/config/container"
+	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
 	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
+	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 
@@ -50,7 +52,7 @@ func Router(cont container.Container) http.Handler {
 				apiRouter.Use(cont.AuthMw)
 
 				UserRouter(apiRouter, cont.UserController)
-				EventRouter(apiRouter, cont.EventController)
+				EventRouter(apiRouter, cont.EventController, cont.EventMw)
 				apiRouter.Handle("/*", NotFoundJSON())
 			})
 		})
@@ -102,7 +104,8 @@ func UserRouter(r chi.Router, uc controllers.UserController) {
 	})
 }
 
-func EventRouter(r chi.Router, ev controllers.EventController) {
+func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Handler) http.Handler) {
+	isOwner := middlewares.IsOwnerMiddleware[domain.Event]()
 	r.Route("/events", func(apiRouter chi.Router) {
 		apiRouter.Post(
 			"/",
@@ -116,11 +119,11 @@ func EventRouter(r chi.Router, ev controllers.EventController) {
 			"/",
 			ev.FindList(),
 		)
-		apiRouter.Put(
+		apiRouter.With(emw, isOwner).Put(
 			"/update/{eventid}",
 			ev.Update(),
 		)
-		apiRouter.Delete(
+		apiRouter.With(emw, isOwner).Delete(
 			"/delete/{eventid}",
 			ev.Delete(),
 		)
