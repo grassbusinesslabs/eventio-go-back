@@ -2,10 +2,10 @@ package app
 
 import (
 	"errors"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/database"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
 	"github.com/upper/db/v4"
 	"golang.org/x/crypto/bcrypt"
 	"log"

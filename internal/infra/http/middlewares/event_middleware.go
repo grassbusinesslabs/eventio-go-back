@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/app"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
 	"github.com/go-chi/chi/v5"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
 )
 
 func EventMiddleware(es app.EventService) func(http.Handler) http.Handler {

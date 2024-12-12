@@ -3,7 +3,7 @@ package resources
 import (
 	"time"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 )
 
 type EventDto struct {
@@ -44,7 +44,7 @@ func (d EventsDto) DomainToDto(ev []domain.Event) EventsDto {
 func (d EventDto) DomainToDto(t domain.Event) EventDto {
 	return EventDto{
 		EventId:     t.EventId,
-		Tytle:       t.Tytle,
+		Tytle:       t.Title,
 		Description: t.Description,
 		Date:        t.Date,
 		Image:       t.Image,
@@ -57,7 +57,7 @@ func (d EventDto) DomainToDto(t domain.Event) EventDto {
 func (d ShortEventDto) DomainToDto(t domain.Event) ShortEventDto {
 	return ShortEventDto{
 		EventId:  t.EventId,
-		Tytle:    t.Tytle,
+		Tytle:    t.Title,
 		Date:     t.Date,
 		Location: t.Location,
 		Lat:      t.Lat,

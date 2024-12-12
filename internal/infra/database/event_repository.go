@@ -3,16 +3,16 @@ package database
 import (
 	"time"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 	"github.com/upper/db/v4"
 )
 
 const EventsTableName = "events"
 
 type event struct {
-	EventId     uint64     `db:"eventid,omitempty"`
+	Id          uint64     `db:"id,omitempty"`
 	UserId      uint64     `db:"userid,omitempty"`
-	Tytle       string     `db:"tytle"`
+	Title       string     `db:"title"`
 	Description string     `db:"description"`
 	Date        time.Time  `db:"date"`
 	Image       string     `db:"image"`
@@ -50,10 +50,10 @@ func (r EventRepository) Save(t domain.Event) (domain.Event, error) {
 	return t, nil
 }
 
-func (r EventRepository) Find(eventid uint64) (domain.Event, error) {
+func (r EventRepository) Find(id uint64) (domain.Event, error) {
 	var evn event
 
-	err := r.coll.Find(db.Cond{"eventid": eventid}).One(&evn)
+	err := r.coll.Find(db.Cond{"id": id}).One(&evn)
 	if err != nil {
 		return domain.Event{}, err
 	}
@@ -77,22 +77,22 @@ func (r EventRepository) FindList() ([]domain.Event, error) {
 func (r EventRepository) Update(t domain.Event) (domain.Event, error) {
 	evn := r.mapDomainToModel(t)
 	evn.UpdatedDate = time.Now()
-	err := r.coll.Find(db.Cond{"eventid": evn.EventId, "deleted_date": nil}).Update(&evn)
+	err := r.coll.Find(db.Cond{"id": evn.Id, "deleted_date": nil}).Update(&evn)
 	if err != nil {
 		return domain.Event{}, err
 	}
 	return r.mapModelToDomain(evn), nil
 }
 
-func (r EventRepository) Delete(eventid uint64) error {
-	return r.coll.Find(db.Cond{"eventid": eventid, "deleted_date": nil}).Update(map[string]interface{}{"deleted_date": time.Now()})
+func (r EventRepository) Delete(id uint64) error {
+	return r.coll.Find(db.Cond{"id": id, "deleted_date": nil}).Update(map[string]interface{}{"deleted_date": time.Now()})
 }
 
 func (r EventRepository) mapDomainToModel(d domain.Event) event {
 	return event{
-		EventId:     d.EventId,
+		Id:          d.EventId,
 		UserId:      d.UserId,
-		Tytle:       d.Tytle,
+		Title:       d.Title,
 		Description: d.Description,
 		Date:        d.Date,
 		Image:       d.Image,
@@ -107,9 +107,9 @@ func (r EventRepository) mapDomainToModel(d domain.Event) event {
 
 func (r EventRepository) mapModelToDomain(m event) domain.Event {
 	return domain.Event{
-		EventId:     m.EventId,
+		EventId:     m.Id,
 		UserId:      m.UserId,
-		Tytle:       m.Tytle,
+		Title:       m.Title,
 		Description: m.Description,
 		Date:        m.Date,
 		Image:       m.Image,
@@ -123,9 +123,9 @@ func (r EventRepository) mapModelToDomain(m event) domain.Event {
 }
 
 func (r EventRepository) mapModelToDomainCollection(evn []event) []domain.Event {
-	var evns []domain.Event
+	var events []domain.Event
 	for _, ev := range evn {
-		evns = append(evns, r.mapModelToDomain(ev))
+		events = append(events, r.mapModelToDomain(ev))
 	}
-	return evns
+	return events
 }

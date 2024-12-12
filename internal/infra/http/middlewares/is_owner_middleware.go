@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
 )
 
 type Userable interface {

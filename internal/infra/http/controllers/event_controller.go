@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/app"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/requests"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/resources"
 	"github.com/go-chi/chi/v5"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/requests"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/resources"
 )
 
 type EventController struct {
@@ -49,7 +49,7 @@ func (c EventController) Save() http.HandlerFunc {
 
 func (c EventController) Find() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		eventId, err := strconv.ParseUint(chi.URLParam(r, "eventid"), 10, 64)
+		eventId, err := strconv.ParseUint(chi.URLParam(r, "eventId"), 10, 64)
 		if err != nil {
 			log.Printf("EventController -> Find -> strconv.ParseUint: %s", err)
 			BadRequest(w, err)
@@ -87,9 +87,14 @@ func (c EventController) FindList() http.HandlerFunc {
 func (c EventController) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		updateEvent, err := requests.Bind(r, requests.EventRequest{}, domain.Event{})
+		if err != nil {
+			log.Printf("EventController -> Update -> requests.Bind: %s", err)
+			BadRequest(w, err)
+			return
+		}
 		event := r.Context().Value(EventKey).(domain.Event)
 
-		event.Tytle = updateEvent.Tytle
+		event.Title = updateEvent.Title
 		event.Description = updateEvent.Description
 		event.Date = updateEvent.Date
 		event.Image = updateEvent.Image

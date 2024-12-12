@@ -5,7 +5,7 @@ import "time"
 type Event struct {
 	EventId     uint64
 	UserId      uint64
-	Tytle       string
+	Title       string
 	Description string
 	Date        time.Time
 	Image       string

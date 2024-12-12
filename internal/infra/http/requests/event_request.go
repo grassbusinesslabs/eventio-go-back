@@ -3,7 +3,7 @@ package requests
 import (
 	"time"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 )
 
 type EventRequest struct {
@@ -18,7 +18,7 @@ type EventRequest struct {
 
 func (r EventRequest) ToDomainModel() (interface{}, error) {
 	return domain.Event{
-		Tytle:       r.Tytle,
+		Title:       r.Tytle,
 		Description: r.Description,
 		Date:        r.Date,
 		Image:       r.Image,

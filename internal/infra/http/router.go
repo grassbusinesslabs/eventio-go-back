@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/config"
-	"github.com/BohdanBoriak/boilerplate-go-back/config/container"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/grassbusinesslabs/eventio-go-back/config"
+	"github.com/grassbusinesslabs/eventio-go-back/config/container"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/middlewares"
 
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -112,7 +112,7 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			ev.Save(),
 		)
 		apiRouter.Get(
-			"/{eventid}",
+			"/{eventId}",
 			ev.Find(),
 		)
 		apiRouter.Get(
@@ -120,11 +120,11 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			ev.FindList(),
 		)
 		apiRouter.With(emw, isOwner).Put(
-			"/update/{eventid}",
+			"/update/{eventId}",
 			ev.Update(),
 		)
 		apiRouter.With(emw, isOwner).Delete(
-			"/delete/{eventid}",
+			"/delete/{eventId}",
 			ev.Delete(),
 		)
 	})

@@ -1,6 +1,6 @@
 package resources
 
-import "github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
+import "github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 
 type UserDto struct {
 	Id         uint64      `json:"id"`

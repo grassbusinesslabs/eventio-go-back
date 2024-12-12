@@ -9,10 +9,10 @@ import (
 	"runtime/debug"
 	"syscall"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/config"
-	"github.com/BohdanBoriak/boilerplate-go-back/config/container"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/database"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http"
+	"github.com/grassbusinesslabs/eventio-go-back/config"
+	"github.com/grassbusinesslabs/eventio-go-back/config/container"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http"
 )
 
 func main() {

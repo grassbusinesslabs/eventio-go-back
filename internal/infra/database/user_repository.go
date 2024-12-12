@@ -3,7 +3,7 @@ package database
 import (
 	"time"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 	"github.com/upper/db/v4"
 )
 

@@ -2,8 +2,8 @@ package database
 
 import (
 	"fmt"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
 	"github.com/google/uuid"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 	"github.com/upper/db/v4"
 )
 

@@ -4,12 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/config"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/app"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/database"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/middlewares"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/grassbusinesslabs/eventio-go-back/config"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/middlewares"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/postgresql"
 )

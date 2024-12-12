@@ -1,7 +1,7 @@
 package requests
 
 import (
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 )
 
 type RegisterRequest struct {

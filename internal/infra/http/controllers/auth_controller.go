@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/app"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/requests"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/resources"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/requests"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/resources"
 	"log"
 	"net/http"
 )

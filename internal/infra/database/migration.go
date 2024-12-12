@@ -3,10 +3,10 @@ package database
 import (
 	"errors"
 	"fmt"
-	"github.com/BohdanBoriak/boilerplate-go-back/config"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/grassbusinesslabs/eventio-go-back/config"
 	"log"
 	"os"
 	"strconv"

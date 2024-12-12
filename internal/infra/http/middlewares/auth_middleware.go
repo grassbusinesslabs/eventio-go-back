@@ -5,11 +5,11 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/app"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/domain"
-	"github.com/BohdanBoriak/boilerplate-go-back/internal/infra/http/controllers"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/upper/db/v4"
 )
