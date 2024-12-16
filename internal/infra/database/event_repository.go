@@ -11,7 +11,7 @@ const EventsTableName = "events"
 
 type event struct {
 	Id          uint64     `db:"id,omitempty"`
-	UserId      uint64     `db:"userid,omitempty"`
+	User_Id     uint64     `db:"user_id,omitempty"`
 	Title       string     `db:"title"`
 	Description string     `db:"description"`
 	Date        time.Time  `db:"date"`
@@ -90,8 +90,8 @@ func (r EventRepository) Delete(id uint64) error {
 
 func (r EventRepository) mapDomainToModel(d domain.Event) event {
 	return event{
-		Id:          d.EventId,
-		UserId:      d.UserId,
+		Id:          d.Id,
+		User_Id:     d.User_Id,
 		Title:       d.Title,
 		Description: d.Description,
 		Date:        d.Date,
@@ -107,8 +107,8 @@ func (r EventRepository) mapDomainToModel(d domain.Event) event {
 
 func (r EventRepository) mapModelToDomain(m event) domain.Event {
 	return domain.Event{
-		EventId:     m.Id,
-		UserId:      m.UserId,
+		Id:          m.Id,
+		User_Id:     m.User_Id,
 		Title:       m.Title,
 		Description: m.Description,
 		Date:        m.Date,

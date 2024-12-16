@@ -111,20 +111,20 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			"/",
 			ev.Save(),
 		)
-		apiRouter.Get(
-			"/{eventId}",
+		apiRouter.With(emw).Get(
+			"/",
 			ev.Find(),
 		)
 		apiRouter.Get(
-			"/",
+			"/findAll",
 			ev.FindList(),
 		)
 		apiRouter.With(emw, isOwner).Put(
-			"/update/{eventId}",
+			"/update",
 			ev.Update(),
 		)
 		apiRouter.With(emw, isOwner).Delete(
-			"/delete/{eventId}",
+			"/delete",
 			ev.Delete(),
 		)
 	})

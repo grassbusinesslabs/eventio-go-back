@@ -7,8 +7,8 @@ import (
 )
 
 type EventDto struct {
-	EventId     uint64    `json:"eventid"`
-	Tytle       string    `json:"tytle"`
+	Id          uint64    `json:"id"`
+	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
 	Image       string    `json:"image"`
@@ -18,8 +18,8 @@ type EventDto struct {
 }
 
 type ShortEventDto struct {
-	EventId  uint64    `json:"eventid"`
-	Tytle    string    `json:"tytle"`
+	Id       uint64    `json:"id"`
+	Title    string    `json:"title"`
 	Date     time.Time `json:"date"`
 	Location string    `json:"location"`
 	Lat      float64   `json:"lat"`
@@ -43,8 +43,8 @@ func (d EventsDto) DomainToDto(ev []domain.Event) EventsDto {
 
 func (d EventDto) DomainToDto(t domain.Event) EventDto {
 	return EventDto{
-		EventId:     t.EventId,
-		Tytle:       t.Title,
+		Id:          t.Id,
+		Title:       t.Title,
 		Description: t.Description,
 		Date:        t.Date,
 		Image:       t.Image,
@@ -56,8 +56,8 @@ func (d EventDto) DomainToDto(t domain.Event) EventDto {
 
 func (d ShortEventDto) DomainToDto(t domain.Event) ShortEventDto {
 	return ShortEventDto{
-		EventId:  t.EventId,
-		Tytle:    t.Title,
+		Id:       t.Id,
+		Title:    t.Title,
 		Date:     t.Date,
 		Location: t.Location,
 		Lat:      t.Lat,

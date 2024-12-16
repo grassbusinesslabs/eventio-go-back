@@ -3,9 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/requests"
@@ -32,7 +30,7 @@ func (c EventController) Save() http.HandlerFunc {
 		}
 
 		user := r.Context().Value(UserKey).(domain.User)
-		event.UserId = user.Id
+		event.User_Id = user.Id
 
 		event, err = c.eventService.Save(event)
 		if err != nil {
@@ -49,19 +47,7 @@ func (c EventController) Save() http.HandlerFunc {
 
 func (c EventController) Find() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		eventId, err := strconv.ParseUint(chi.URLParam(r, "eventId"), 10, 64)
-		if err != nil {
-			log.Printf("EventController -> Find -> strconv.ParseUint: %s", err)
-			BadRequest(w, err)
-			return
-		}
-
-		event, err := c.eventService.Find(eventId)
-		if err != nil {
-			log.Printf("EventController -> Find -> c.eventService.Find: %s", err)
-			InternalServerError(w, err)
-			return
-		}
+		event := r.Context().Value(EventKey).(domain.Event)
 
 		var eventDto resources.EventDto
 		eventDto = eventDto.DomainToDto(event)
@@ -117,7 +103,7 @@ func (c EventController) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		event := r.Context().Value(EventKey).(domain.Event)
 
-		err := c.eventService.Delete(event.EventId)
+		err := c.eventService.Delete(event.Id)
 		if err != nil {
 			log.Printf("EventController: %s", err)
 			InternalServerError(w, err)

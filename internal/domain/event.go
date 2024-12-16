@@ -3,8 +3,8 @@ package domain
 import "time"
 
 type Event struct {
-	EventId     uint64
-	UserId      uint64
+	Id          uint64
+	User_Id     uint64
 	Title       string
 	Description string
 	Date        time.Time
@@ -18,5 +18,5 @@ type Event struct {
 }
 
 func (e Event) GetUserId() uint64 {
-	return e.UserId
+	return e.User_Id
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type EventRequest struct {
-	Tytle       string    `json:"tytle" validate:"required"`
+	Title       string    `json:"title" validate:"required"`
 	Description string    `json:"description" validate:"required"`
 	Date        time.Time `json:"date" validate:"required"`
 	Image       string    `json:"image"`
@@ -18,7 +18,7 @@ type EventRequest struct {
 
 func (r EventRequest) ToDomainModel() (interface{}, error) {
 	return domain.Event{
-		Title:       r.Tytle,
+		Title:       r.Title,
 		Description: r.Description,
 		Date:        r.Date,
 		Image:       r.Image,
