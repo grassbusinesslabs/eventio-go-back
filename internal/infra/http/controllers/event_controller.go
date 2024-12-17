@@ -3,6 +3,8 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
@@ -64,6 +66,60 @@ func (c EventController) FindList() http.HandlerFunc {
 			return
 		}
 
+		var eventsDto resources.EventsDto
+		eventsDto = eventsDto.DomainToDto(events)
+		Success(w, eventsDto)
+	}
+}
+
+func (c EventController) FindListByUser() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(UserKey).(domain.User)
+		events, err := c.eventService.FindListByUser(user.Id)
+		if err != nil {
+			log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		var eventsDto resources.EventsDto
+		eventsDto = eventsDto.DomainToDto(events)
+		Success(w, eventsDto)
+	}
+}
+
+func (c EventController) FindListByDate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		dateunix, err := strconv.ParseUint(r.URL.Query().Get("date"), 10, 64)
+		if err != nil {
+			log.Printf("EventController -> strconv.ParseUint: %s", err)
+			BadRequest(w, err)
+			return
+		}
+		date := time.Unix(int64(dateunix), 0)
+
+		events, err := c.eventService.FindListByDate(date)
+		if err != nil {
+			log.Printf("EventController -> FindListByDate -> FindListByDate: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+		var eventsDto resources.EventsDto
+		eventsDto = eventsDto.DomainToDto(events)
+		Success(w, eventsDto)
+	}
+}
+
+func (c EventController) FindListByTitle() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		title := r.URL.Query().Get("title")
+
+		events, err := c.eventService.FindListByTitle(title)
+		if err != nil {
+			log.Printf("EventController -> FindListByTitle -> FindListByTitle: %s", err)
+			InternalServerError(w, err)
+			return
+		}
 		var eventsDto resources.EventsDto
 		eventsDto = eventsDto.DomainToDto(events)
 		Success(w, eventsDto)

@@ -74,6 +74,44 @@ func (r EventRepository) FindList() ([]domain.Event, error) {
 	return evs, nil
 }
 
+func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
+	var evns []event
+
+	err := r.coll.Find(db.Cond{"user_id": id}).All(&evns)
+	if err != nil {
+		return nil, err
+	}
+
+	evs := r.mapModelToDomainCollection(evns)
+	return evs, nil
+}
+
+func (r EventRepository) FindListByDate(date time.Time) ([]domain.Event, error) {
+	var evns []event
+	startday := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	endday := time.Date(date.Year(), date.Month(), date.Day(), 24, 0, 0, 0, date.Location())
+
+	err := r.coll.Find(db.Cond{"date >=": startday, "date <": endday}).All(&evns)
+	if err != nil {
+		return nil, err
+	}
+
+	evs := r.mapModelToDomainCollection(evns)
+	return evs, nil
+}
+
+func (r EventRepository) FindListByTitle(title string) ([]domain.Event, error) {
+	var evns []event
+
+	err := r.coll.Find(db.Cond{"title": title}).All(&evns)
+	if err != nil {
+		return nil, err
+	}
+
+	evs := r.mapModelToDomainCollection(evns)
+	return evs, nil
+}
+
 func (r EventRepository) Update(t domain.Event) (domain.Event, error) {
 	evn := r.mapDomainToModel(t)
 	evn.UpdatedDate = time.Now()
