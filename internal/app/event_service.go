@@ -13,7 +13,8 @@ type EventService interface {
 	Find(id uint64) (domain.Event, error)
 	FindList() ([]domain.Event, error)
 	FindListByUser(id uint64) ([]domain.Event, error)
-	FindListByDate(time time.Time) ([]domain.Event, error)
+	FindListByDay(time time.Time) ([]domain.Event, error)
+	FindListByMonth(time time.Time) ([]domain.Event, error)
 	FindListByTitle(title string) ([]domain.Event, error)
 	Update(event domain.Event) (domain.Event, error)
 	Delete(id uint64) error
@@ -65,10 +66,19 @@ func (s eventService) FindListByUser(id uint64) ([]domain.Event, error) {
 	return events, nil
 }
 
-func (s eventService) FindListByDate(date time.Time) ([]domain.Event, error) {
-	events, err := s.eventRepo.FindListByDate(date)
+func (s eventService) FindListByDay(date time.Time) ([]domain.Event, error) {
+	events, err := s.eventRepo.FindListByDay(date)
 	if err != nil {
-		log.Printf("EventService -> FindListByDate -> s.eventRepo.FindListByDate: %s", err)
+		log.Printf("EventService -> FindListByDay -> s.eventRepo.FindListByDay: %s", err)
+		return nil, err
+	}
+	return events, nil
+}
+
+func (s eventService) FindListByMonth(date time.Time) ([]domain.Event, error) {
+	events, err := s.eventRepo.FindListByMonth(date)
+	if err != nil {
+		log.Printf("EventService -> FindListByMonth -> s.eventRepo.FindListByMonth: %s", err)
 		return nil, err
 	}
 	return events, nil

@@ -59,16 +59,71 @@ func (c EventController) Find() http.HandlerFunc {
 
 func (c EventController) FindList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		events, err := c.eventService.FindList()
-		if err != nil {
-			log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
-			InternalServerError(w, err)
-			return
-		}
+		title := r.URL.Query().Get("title")
+		dayunix := r.URL.Query().Get("day")
+		monthunix := r.URL.Query().Get("month")
 
-		var eventsDto resources.EventsDto
-		eventsDto = eventsDto.DomainToDto(events)
-		Success(w, eventsDto)
+		if title != "" {
+			events, err := c.eventService.FindListByTitle(title)
+			if err != nil {
+				log.Printf("EventController -> FindList -> FindListByTitle: %s", err)
+				InternalServerError(w, err)
+				return
+			}
+
+			var eventsDto resources.EventsDto
+			eventsDto = eventsDto.DomainToDto(events)
+			Success(w, eventsDto)
+		} else if dayunix != "" {
+			dateunix, err := strconv.ParseUint(dayunix, 10, 64)
+			if err != nil {
+				log.Printf("EventController -> strconv.ParseUint: %s", err)
+				BadRequest(w, err)
+				return
+			}
+
+			date := time.Unix(int64(dateunix), 0)
+			events, err := c.eventService.FindListByDay(date)
+			if err != nil {
+				log.Printf("EventController -> FindList -> FindListByDate: %s", err)
+				InternalServerError(w, err)
+				return
+			}
+
+			var eventsDto resources.EventsDto
+			eventsDto = eventsDto.DomainToDto(events)
+			Success(w, eventsDto)
+		} else if monthunix != "" {
+			monthunix, err := strconv.ParseUint(monthunix, 10, 64)
+			if err != nil {
+				log.Printf("EventController -> strconv.ParseUint: %s", err)
+				BadRequest(w, err)
+				return
+			}
+
+			date := time.Unix(int64(monthunix), 0)
+			events, err := c.eventService.FindListByMonth(date)
+			if err != nil {
+				log.Printf("EventController -> FindList -> FindListByMonth: %s", err)
+				InternalServerError(w, err)
+				return
+			}
+
+			var eventsDto resources.EventsDto
+			eventsDto = eventsDto.DomainToDto(events)
+			Success(w, eventsDto)
+		} else {
+			events, err := c.eventService.FindList()
+			if err != nil {
+				log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
+				InternalServerError(w, err)
+				return
+			}
+
+			var eventsDto resources.EventsDto
+			eventsDto = eventsDto.DomainToDto(events)
+			Success(w, eventsDto)
+		}
 	}
 }
 
@@ -82,44 +137,6 @@ func (c EventController) FindListByUser() http.HandlerFunc {
 			return
 		}
 
-		var eventsDto resources.EventsDto
-		eventsDto = eventsDto.DomainToDto(events)
-		Success(w, eventsDto)
-	}
-}
-
-func (c EventController) FindListByDate() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		dateunix, err := strconv.ParseUint(r.URL.Query().Get("date"), 10, 64)
-		if err != nil {
-			log.Printf("EventController -> strconv.ParseUint: %s", err)
-			BadRequest(w, err)
-			return
-		}
-		date := time.Unix(int64(dateunix), 0)
-
-		events, err := c.eventService.FindListByDate(date)
-		if err != nil {
-			log.Printf("EventController -> FindListByDate -> FindListByDate: %s", err)
-			InternalServerError(w, err)
-			return
-		}
-		var eventsDto resources.EventsDto
-		eventsDto = eventsDto.DomainToDto(events)
-		Success(w, eventsDto)
-	}
-}
-
-func (c EventController) FindListByTitle() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		title := r.URL.Query().Get("title")
-
-		events, err := c.eventService.FindListByTitle(title)
-		if err != nil {
-			log.Printf("EventController -> FindListByTitle -> FindListByTitle: %s", err)
-			InternalServerError(w, err)
-			return
-		}
 		var eventsDto resources.EventsDto
 		eventsDto = eventsDto.DomainToDto(events)
 		Success(w, eventsDto)

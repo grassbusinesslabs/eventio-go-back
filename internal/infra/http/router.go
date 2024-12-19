@@ -116,20 +116,12 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			ev.Find(),
 		)
 		apiRouter.Get(
+			"/findlist",
+			ev.FindList(),
+		)
+		apiRouter.Get(
 			"/findbyuser",
 			ev.FindListByUser(),
-		)
-		apiRouter.Get(
-			"/findbydate",
-			ev.FindListByDate(),
-		)
-		apiRouter.Get(
-			"/findbytitle",
-			ev.FindListByTitle(),
-		)
-		apiRouter.Get(
-			"/findall",
-			ev.FindList(),
 		)
 		apiRouter.With(emw, isOwner).Put(
 			"/update",

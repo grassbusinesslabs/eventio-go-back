@@ -65,7 +65,7 @@ func (r EventRepository) Find(id uint64) (domain.Event, error) {
 func (r EventRepository) FindList() ([]domain.Event, error) {
 	var evns []event
 
-	err := r.coll.Find().All(&evns)
+	err := r.coll.Find(db.Cond{"deleted_date": nil}).OrderBy("-date").All(&evns)
 	if err != nil {
 		return nil, err
 	}
@@ -86,12 +86,26 @@ func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
 	return evs, nil
 }
 
-func (r EventRepository) FindListByDate(date time.Time) ([]domain.Event, error) {
+func (r EventRepository) FindListByDay(date time.Time) ([]domain.Event, error) {
 	var evns []event
 	startday := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	endday := time.Date(date.Year(), date.Month(), date.Day(), 24, 0, 0, 0, date.Location())
 
-	err := r.coll.Find(db.Cond{"date >=": startday, "date <": endday}).All(&evns)
+	err := r.coll.Find(db.Cond{"date >=": startday, "date <": endday, "deleted_date": nil}).OrderBy("-date").All(&evns)
+	if err != nil {
+		return nil, err
+	}
+
+	evs := r.mapModelToDomainCollection(evns)
+	return evs, nil
+}
+
+func (r EventRepository) FindListByMonth(date time.Time) ([]domain.Event, error) {
+	var evns []event
+	startmonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
+	endmonth := startmonth.AddDate(0, 1, 0)
+
+	err := r.coll.Find(db.Cond{"date >=": startmonth, "date <": endmonth, "deleted_date": nil}).OrderBy("-date").All(&evns)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +117,7 @@ func (r EventRepository) FindListByDate(date time.Time) ([]domain.Event, error) 
 func (r EventRepository) FindListByTitle(title string) ([]domain.Event, error) {
 	var evns []event
 
-	err := r.coll.Find(db.Cond{"title": title}).All(&evns)
+	err := r.coll.Find(db.Cond{"title": title, "deleted_date": nil}).OrderBy("-date").All(&evns)
 	if err != nil {
 		return nil, err
 	}
