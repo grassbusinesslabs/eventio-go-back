@@ -11,11 +11,11 @@ import (
 type EventService interface {
 	Save(event domain.Event) (domain.Event, error)
 	Find(id uint64) (domain.Event, error)
-	FindList() ([]domain.Event, error)
+	FindList(city string) ([]domain.Event, error)
 	FindListByUser(id uint64) ([]domain.Event, error)
-	FindListByDay(time time.Time) ([]domain.Event, error)
-	FindListByMonth(time time.Time) ([]domain.Event, error)
-	FindListByTitle(title string) ([]domain.Event, error)
+	FindListByDay(time time.Time, city string) ([]domain.Event, error)
+	FindListByMonth(time time.Time, city string) ([]domain.Event, error)
+	FindListBySearch(title string, city string) ([]domain.Event, error)
 	Update(event domain.Event) (domain.Event, error)
 	Delete(id uint64) error
 }
@@ -48,8 +48,8 @@ func (s eventService) Find(id uint64) (domain.Event, error) {
 	return evn, nil
 }
 
-func (s eventService) FindList() ([]domain.Event, error) {
-	events, err := s.eventRepo.FindList()
+func (s eventService) FindList(city string) ([]domain.Event, error) {
+	events, err := s.eventRepo.FindList(city)
 	if err != nil {
 		log.Printf("EventService -> FindList -> s.eventRepo.FindList: %s", err)
 		return nil, err
@@ -66,8 +66,8 @@ func (s eventService) FindListByUser(id uint64) ([]domain.Event, error) {
 	return events, nil
 }
 
-func (s eventService) FindListByDay(date time.Time) ([]domain.Event, error) {
-	events, err := s.eventRepo.FindListByDay(date)
+func (s eventService) FindListByDay(date time.Time, city string) ([]domain.Event, error) {
+	events, err := s.eventRepo.FindListByDay(date, city)
 	if err != nil {
 		log.Printf("EventService -> FindListByDay -> s.eventRepo.FindListByDay: %s", err)
 		return nil, err
@@ -75,8 +75,8 @@ func (s eventService) FindListByDay(date time.Time) ([]domain.Event, error) {
 	return events, nil
 }
 
-func (s eventService) FindListByMonth(date time.Time) ([]domain.Event, error) {
-	events, err := s.eventRepo.FindListByMonth(date)
+func (s eventService) FindListByMonth(date time.Time, city string) ([]domain.Event, error) {
+	events, err := s.eventRepo.FindListByMonth(date, city)
 	if err != nil {
 		log.Printf("EventService -> FindListByMonth -> s.eventRepo.FindListByMonth: %s", err)
 		return nil, err
@@ -84,10 +84,10 @@ func (s eventService) FindListByMonth(date time.Time) ([]domain.Event, error) {
 	return events, nil
 }
 
-func (s eventService) FindListByTitle(title string) ([]domain.Event, error) {
-	events, err := s.eventRepo.FindListByTitle(title)
+func (s eventService) FindListBySearch(search string, city string) ([]domain.Event, error) {
+	events, err := s.eventRepo.FindListBySearch(search, city)
 	if err != nil {
-		log.Printf("EventService -> FindListByTitle -> s.eventRepo.FindListByTitle: %s", err)
+		log.Printf("EventService -> FindListBySearch -> s.eventRepo.FindListBySearch: %s", err)
 		return nil, err
 	}
 	return events, nil

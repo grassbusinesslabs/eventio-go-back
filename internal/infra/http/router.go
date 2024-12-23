@@ -131,6 +131,10 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			"/delete",
 			ev.Delete(),
 		)
+		apiRouter.Post(
+			"/upload-image",
+			ev.UploadImage(),
+		)
 	})
 }
 

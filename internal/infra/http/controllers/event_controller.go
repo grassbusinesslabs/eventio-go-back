@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -8,17 +11,20 @@ import (
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/filesystem"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/requests"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/resources"
 )
 
 type EventController struct {
 	eventService app.EventService
+	imageStorage filesystem.ImageStorageService
 }
 
-func NewEventController(ev app.EventService) EventController {
+func NewEventController(ev app.EventService, imgStorage filesystem.ImageStorageService) EventController {
 	return EventController{
 		eventService: ev,
+		imageStorage: imgStorage,
 	}
 }
 
@@ -59,14 +65,21 @@ func (c EventController) Find() http.HandlerFunc {
 
 func (c EventController) FindList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		title := r.URL.Query().Get("title")
+		city := r.URL.Query().Get("city")
+		search := r.URL.Query().Get("search")
 		dayunix := r.URL.Query().Get("day")
 		monthunix := r.URL.Query().Get("month")
 
-		if title != "" {
-			events, err := c.eventService.FindListByTitle(title)
+		if city == "" {
+			err := errors.New("Option City must be selected!")
+			Forbidden(w, err)
+			return
+		}
+
+		if search != "" {
+			events, err := c.eventService.FindListBySearch(search, city)
 			if err != nil {
-				log.Printf("EventController -> FindList -> FindListByTitle: %s", err)
+				log.Printf("EventController -> FindList -> FindListBySearch: %s", err)
 				InternalServerError(w, err)
 				return
 			}
@@ -83,9 +96,9 @@ func (c EventController) FindList() http.HandlerFunc {
 			}
 
 			date := time.Unix(int64(dateunix), 0)
-			events, err := c.eventService.FindListByDay(date)
+			events, err := c.eventService.FindListByDay(date, city)
 			if err != nil {
-				log.Printf("EventController -> FindList -> FindListByDate: %s", err)
+				log.Printf("EventController -> FindList -> FindListByDay: %s", err)
 				InternalServerError(w, err)
 				return
 			}
@@ -102,7 +115,7 @@ func (c EventController) FindList() http.HandlerFunc {
 			}
 
 			date := time.Unix(int64(monthunix), 0)
-			events, err := c.eventService.FindListByMonth(date)
+			events, err := c.eventService.FindListByMonth(date, city)
 			if err != nil {
 				log.Printf("EventController -> FindList -> FindListByMonth: %s", err)
 				InternalServerError(w, err)
@@ -113,7 +126,7 @@ func (c EventController) FindList() http.HandlerFunc {
 			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		} else {
-			events, err := c.eventService.FindList()
+			events, err := c.eventService.FindList(city)
 			if err != nil {
 				log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
 				InternalServerError(w, err)
@@ -156,7 +169,7 @@ func (c EventController) Update() http.HandlerFunc {
 		event.Title = updateEvent.Title
 		event.Description = updateEvent.Description
 		event.Date = updateEvent.Date
-		event.Image = updateEvent.Image
+		event.City = updateEvent.City
 		event.Location = updateEvent.Location
 		event.Lat = updateEvent.Lat
 		event.Lon = updateEvent.Lon
@@ -184,5 +197,58 @@ func (c EventController) Delete() http.HandlerFunc {
 		}
 
 		Ok(w)
+	}
+}
+
+func (c EventController) UploadImage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		eventid := r.URL.Query().Get("Id")
+		eventId, err := strconv.ParseUint(eventid, 10, 64)
+		if err != nil {
+			log.Printf("EventController -> UploadImage -> strconv.ParseUint: %s", err)
+			BadRequest(w, err)
+			return
+		}
+
+		file, _, err := r.FormFile("image")
+		if err != nil {
+			log.Printf("EventController -> UploadImage -> FormFile: %s", err)
+			BadRequest(w, err)
+			return
+		}
+		defer file.Close()
+
+		fileContent, err := io.ReadAll(file)
+		if err != nil {
+			log.Printf("EventController -> UploadImage -> ReadAll: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		filename := fmt.Sprintf("%d.png", eventId)
+
+		err = c.imageStorage.SaveImage(filename, fileContent)
+		if err != nil {
+			log.Printf("EventController -> UploadImage -> SaveImage: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		event, err := c.eventService.Find(eventId)
+		if err != nil {
+			log.Printf("EventController -> UploadImage -> Find: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		event.Image = filename
+		event, err = c.eventService.Update(event)
+		if err != nil {
+			log.Printf("EventController -> UploadImage -> Update: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		Success(w, map[string]string{"message": "File saved successfully!", "path": filename})
 	}
 }

@@ -12,6 +12,7 @@ type EventDto struct {
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
 	Image       string    `json:"image"`
+	City        string    `json:"city"`
 	Location    string    `json:"location"`
 	Lat         float64   `json:"lat"`
 	Lon         float64   `json:"lon"`
@@ -22,6 +23,8 @@ type ShortEventDto struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
+	Image       string    `json:"image"`
+	City        string    `json:"city"`
 	Location    string    `json:"location"`
 	Lat         float64   `json:"lat"`
 	Lon         float64   `json:"lon"`
@@ -49,6 +52,7 @@ func (d EventDto) DomainToDto(t domain.Event) EventDto {
 		Description: t.Description,
 		Date:        t.Date,
 		Image:       t.Image,
+		City:        t.City,
 		Location:    t.Location,
 		Lat:         t.Lat,
 		Lon:         t.Lon,
@@ -61,6 +65,7 @@ func (d ShortEventDto) DomainToDto(t domain.Event) ShortEventDto {
 		Title:       t.Title,
 		Description: t.Description,
 		Date:        t.Date,
+		City:        t.City,
 		Location:    t.Location,
 		Lat:         t.Lat,
 		Lon:         t.Lon,

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.events
     description     text NOT NULL,
     date            timestamp NOT NULL,
     image           text NOT NULL,
+    city            text NOT NULL,
     location        text NOT NULL,
     lat             float NOT NULL,
     lon             float NOT NULL,

@@ -9,6 +9,7 @@ type Event struct {
 	Description string
 	Date        time.Time
 	Image       string
+	City        string
 	Location    string
 	Lat         float64
 	Lon         float64

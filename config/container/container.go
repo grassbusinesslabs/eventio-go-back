@@ -8,6 +8,7 @@ import (
 	"github.com/grassbusinesslabs/eventio-go-back/config"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/filesystem"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/middlewares"
 	"github.com/upper/db/v4"
@@ -49,9 +50,11 @@ func New(conf config.Configuration) Container {
 	authService := app.NewAuthService(sessionRepository, userRepository, tknAuth, conf.JwtTTL)
 	eventService := app.NewEventService(eventRepository)
 
+	imageStorage := filesystem.NewImageStorageService(conf)
+
 	authController := controllers.NewAuthController(authService, userService)
 	userController := controllers.NewUserController(userService, authService)
-	eventController := controllers.NewEventController(eventService)
+	eventController := controllers.NewEventController(eventService, imageStorage)
 
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
 	eventMiddleware := middlewares.EventMiddleware(eventService)

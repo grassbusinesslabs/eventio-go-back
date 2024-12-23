@@ -11,6 +11,7 @@ type EventRequest struct {
 	Description string  `json:"description" validate:"required"`
 	Date        int64   `json:"date" validate:"required"`
 	Image       string  `json:"image"`
+	City        string  `json:"city" validate:"required"`
 	Location    string  `json:"location" validate:"required"`
 	Lat         float64 `json:"lat" validate:"required"`
 	Lon         float64 `json:"lon" validate:"required"`
@@ -23,6 +24,7 @@ func (r EventRequest) ToDomainModel() (interface{}, error) {
 		Description: r.Description,
 		Date:        date,
 		Image:       r.Image,
+		City:        r.City,
 		Location:    r.Location,
 		Lat:         r.Lat,
 		Lon:         r.Lon,
