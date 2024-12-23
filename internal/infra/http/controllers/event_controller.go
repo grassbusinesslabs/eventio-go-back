@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/filesystem"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/requests"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/resources"
@@ -63,42 +63,35 @@ func (c EventController) Find() http.HandlerFunc {
 	}
 }
 
-func (c EventController) FindList() http.HandlerFunc {
+func (c EventController) FindListBy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		city := r.URL.Query().Get("city")
 		search := r.URL.Query().Get("search")
 		dayunix := r.URL.Query().Get("day")
 		monthunix := r.URL.Query().Get("month")
+		yearunix := r.URL.Query().Get("year")
+		location := r.URL.Query().Get("location")
 
-		if city == "" {
-			err := errors.New("Option City must be selected!")
-			Forbidden(w, err)
-			return
-		}
+		var str database.EventSearchParams
 
-		if search != "" {
-			events, err := c.eventService.FindListBySearch(search, city)
-			if err != nil {
-				log.Printf("EventController -> FindList -> FindListBySearch: %s", err)
-				InternalServerError(w, err)
-				return
-			}
+		str.City = city
+		str.Search = search
+		str.Location = location
 
-			var eventsDto resources.EventsDto
-			eventsDto = eventsDto.DomainToDto(events)
-			Success(w, eventsDto)
-		} else if dayunix != "" {
-			dateunix, err := strconv.ParseUint(dayunix, 10, 64)
+		if dayunix != "" {
+			dayunix, err := strconv.ParseUint(dayunix, 10, 64)
 			if err != nil {
 				log.Printf("EventController -> strconv.ParseUint: %s", err)
 				BadRequest(w, err)
 				return
 			}
+			date := time.Unix(int64(dayunix), 0)
 
-			date := time.Unix(int64(dateunix), 0)
-			events, err := c.eventService.FindListByDay(date, city)
+			str.DateDay = &date
+
+			events, err := c.eventService.FindListBy(str)
 			if err != nil {
-				log.Printf("EventController -> FindList -> FindListByDay: %s", err)
+				log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
 				InternalServerError(w, err)
 				return
 			}
@@ -113,11 +106,34 @@ func (c EventController) FindList() http.HandlerFunc {
 				BadRequest(w, err)
 				return
 			}
-
 			date := time.Unix(int64(monthunix), 0)
-			events, err := c.eventService.FindListByMonth(date, city)
+
+			str.DateDay = &date
+
+			events, err := c.eventService.FindListBy(str)
 			if err != nil {
-				log.Printf("EventController -> FindList -> FindListByMonth: %s", err)
+				log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
+				InternalServerError(w, err)
+				return
+			}
+
+			var eventsDto resources.EventsDto
+			eventsDto = eventsDto.DomainToDto(events)
+			Success(w, eventsDto)
+		} else if yearunix != "" {
+			yearunix, err := strconv.ParseUint(yearunix, 10, 64)
+			if err != nil {
+				log.Printf("EventController -> strconv.ParseUint: %s", err)
+				BadRequest(w, err)
+				return
+			}
+			date := time.Unix(int64(yearunix), 0)
+
+			str.DateDay = &date
+
+			events, err := c.eventService.FindListBy(str)
+			if err != nil {
+				log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
 				InternalServerError(w, err)
 				return
 			}
@@ -126,7 +142,7 @@ func (c EventController) FindList() http.HandlerFunc {
 			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		} else {
-			events, err := c.eventService.FindList(city)
+			events, err := c.eventService.FindListBy(str)
 			if err != nil {
 				log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
 				InternalServerError(w, err)

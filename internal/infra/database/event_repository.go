@@ -26,6 +26,15 @@ type event struct {
 	DeletedDate *time.Time `db:"deleted_date,omitempty"`
 }
 
+type EventSearchParams struct {
+	City      string
+	DateDay   *time.Time
+	DateMonth *time.Time
+	DateYear  *time.Time
+	Search    string
+	Location  string
+}
+
 type EventRepository struct {
 	coll db.Collection
 	sess db.Session
@@ -64,18 +73,6 @@ func (r EventRepository) Find(id uint64) (domain.Event, error) {
 	return ev, nil
 }
 
-func (r EventRepository) FindList(city string) ([]domain.Event, error) {
-	var evns []event
-
-	err := r.coll.Find(db.Cond{"deleted_date": nil, "city": city}).OrderBy("-date").All(&evns)
-	if err != nil {
-		return nil, err
-	}
-
-	evs := r.mapModelToDomainCollection(evns)
-	return evs, nil
-}
-
 func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
 	var evns []event
 
@@ -88,38 +85,43 @@ func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
 	return evs, nil
 }
 
-func (r EventRepository) FindListByDay(date time.Time, city string) ([]domain.Event, error) {
-	var evns []event
-	startday := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-	endday := time.Date(date.Year(), date.Month(), date.Day(), 24, 0, 0, 0, date.Location())
+func (r EventRepository) FindListBy(str EventSearchParams) ([]domain.Event, error) {
+	query := r.coll.Find(db.Cond{"deleted_date": nil})
 
-	err := r.coll.Find(db.Cond{"date >=": startday, "date <": endday, "city": city, "deleted_date": nil}).OrderBy("-date").All(&evns)
-	if err != nil {
-		return nil, err
+	if str.City != "" {
+		query = query.And(db.Cond{"city": str.City})
 	}
 
-	evs := r.mapModelToDomainCollection(evns)
-	return evs, nil
-}
-
-func (r EventRepository) FindListByMonth(date time.Time, city string) ([]domain.Event, error) {
-	var evns []event
-	startmonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
-	endmonth := startmonth.AddDate(0, 1, 0)
-
-	err := r.coll.Find(db.Cond{"date >=": startmonth, "date <": endmonth, "city": city, "deleted_date": nil}).OrderBy("-date").All(&evns)
-	if err != nil {
-		return nil, err
+	if str.DateDay != nil {
+		startDay := time.Date(str.DateDay.Year(), str.DateDay.Month(), str.DateDay.Day(), 0, 0, 0, 0, str.DateDay.Location())
+		endDay := startDay.Add(24 * time.Hour)
+		query = query.And(db.Cond{"date >=": startDay, "date <": endDay})
 	}
 
-	evs := r.mapModelToDomainCollection(evns)
-	return evs, nil
-}
+	if str.DateMonth != nil {
+		startMonth := time.Date(str.DateMonth.Year(), str.DateMonth.Month(), 1, 0, 0, 0, 0, str.DateMonth.Location())
+		endMonth := startMonth.AddDate(0, 1, 0)
+		query = query.And(db.Cond{"date >=": startMonth, "date <": endMonth})
+	}
 
-func (r EventRepository) FindListBySearch(search string, city string) ([]domain.Event, error) {
+	if str.DateYear != nil {
+		startYear := time.Date(str.DateYear.Year(), 1, 1, 0, 0, 0, 0, str.DateYear.Location())
+		endYear := startYear.AddDate(1, 0, 0)
+		query = query.And(db.Cond{"date >=": startYear, "date <": endYear})
+	}
+
+	if str.Search != "" {
+		search := "%" + strings.ToLower(str.Search) + "%"
+		query = query.And(db.Raw(`(LOWER(title) LIKE ? OR LOWER(description) LIKE ?)`, search, search))
+	}
+
+	if str.Location != "" {
+		location := "%" + strings.ToLower(str.Location) + "%"
+		query = query.And(db.Raw(`(LOWER(location) LIKE ?)`, location))
+	}
+
 	var evns []event
-	search = "%" + strings.ToLower(search) + "%"
-	err := r.coll.Find(db.Raw(`(LOWER(title) LIKE ? OR LOWER(description) LIKE ?) AND deleted_date IS NULL AND city = ?`, search, search, city)).OrderBy("-date").All(&evns)
+	err := query.OrderBy("-date").All(&evns)
 	if err != nil {
 		return nil, err
 	}

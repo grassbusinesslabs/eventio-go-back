@@ -116,8 +116,8 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			ev.Find(),
 		)
 		apiRouter.Get(
-			"/findlist",
-			ev.FindList(),
+			"/findlistby",
+			ev.FindListBy(),
 		)
 		apiRouter.Get(
 			"/findbyuser",
