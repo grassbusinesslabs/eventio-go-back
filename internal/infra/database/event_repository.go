@@ -99,13 +99,13 @@ func (r EventRepository) FindListBy(str EventSearchParams) ([]domain.Event, erro
 	}
 
 	if str.DateMonth != nil {
-		startMonth := time.Date(str.DateMonth.Year(), str.DateMonth.Month(), 1, 0, 0, 0, 0, str.DateMonth.Location())
+		startMonth := time.Date(str.DateMonth.Year(), str.DateMonth.Month(), 0, 0, 0, 0, 0, str.DateMonth.Location())
 		endMonth := startMonth.AddDate(0, 1, 0)
 		query = query.And(db.Cond{"date >=": startMonth, "date <": endMonth})
 	}
 
 	if str.DateYear != nil {
-		startYear := time.Date(str.DateYear.Year(), 1, 1, 0, 0, 0, 0, str.DateYear.Location())
+		startYear := time.Date(str.DateYear.Year(), 1, 0, 0, 0, 0, 0, str.DateYear.Location())
 		endYear := startYear.AddDate(1, 0, 0)
 		query = query.And(db.Cond{"date >=": startYear, "date <": endYear})
 	}

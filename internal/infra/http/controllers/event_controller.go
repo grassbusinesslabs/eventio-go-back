@@ -108,7 +108,7 @@ func (c EventController) FindListBy() http.HandlerFunc {
 			}
 			date := time.Unix(int64(monthunix), 0)
 
-			str.DateDay = &date
+			str.DateMonth = &date
 
 			events, err := c.eventService.FindListBy(str)
 			if err != nil {
@@ -129,7 +129,7 @@ func (c EventController) FindListBy() http.HandlerFunc {
 			}
 			date := time.Unix(int64(yearunix), 0)
 
-			str.DateDay = &date
+			str.DateYear = &date
 
 			events, err := c.eventService.FindListBy(str)
 			if err != nil {
