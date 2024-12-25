@@ -7,15 +7,16 @@ import (
 )
 
 type EventDto struct {
-	Id          uint64    `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Date        time.Time `json:"date"`
-	Image       string    `json:"image"`
-	City        string    `json:"city"`
-	Location    string    `json:"location"`
-	Lat         float64   `json:"lat"`
-	Lon         float64   `json:"lon"`
+	Id           uint64    `json:"id"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	Date         time.Time `json:"date"`
+	Image        string    `json:"image"`
+	City         string    `json:"city"`
+	Location     string    `json:"location"`
+	Lat          float64   `json:"lat"`
+	Lon          float64   `json:"lon"`
+	ImageContent string    `json:"imagecontent,omitempty"`
 }
 
 type ShortEventDto struct {

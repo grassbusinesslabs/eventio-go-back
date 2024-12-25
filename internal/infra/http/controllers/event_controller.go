@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"log"
@@ -59,6 +60,15 @@ func (c EventController) Find() http.HandlerFunc {
 
 		var eventDto resources.EventDto
 		eventDto = eventDto.DomainToDto(event)
+		if event.Image != "" {
+			imagePath := fmt.Sprintf("%d.png", event.Id)
+			imageContent, err := c.imageStorage.GetImageContent(imagePath)
+			if err != nil {
+				log.Printf("EventController -> GetImageContent: %v", err)
+			} else {
+				eventDto.ImageContent = base64.StdEncoding.EncodeToString(imageContent)
+			}
+		}
 		Success(w, eventDto)
 	}
 }
@@ -185,6 +195,7 @@ func (c EventController) Update() http.HandlerFunc {
 		event.Title = updateEvent.Title
 		event.Description = updateEvent.Description
 		event.Date = updateEvent.Date
+		event.Image = updateEvent.Image
 		event.City = updateEvent.City
 		event.Location = updateEvent.Location
 		event.Lat = updateEvent.Lat
