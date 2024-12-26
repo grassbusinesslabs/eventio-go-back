@@ -105,6 +105,8 @@ func UserRouter(r chi.Router, uc controllers.UserController) {
 }
 
 func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Handler) http.Handler) {
+	imwT := middlewares.ImageMiddleware(true)
+	imwF := middlewares.ImageMiddleware(false)
 	isOwner := middlewares.IsOwnerMiddleware[domain.Event]()
 	r.Route("/events", func(apiRouter chi.Router) {
 		apiRouter.Post(
@@ -131,9 +133,17 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			"/delete",
 			ev.Delete(),
 		)
-		apiRouter.Post(
-			"/upload-image",
+		apiRouter.With(emw, imwF).Post(
+			"/uploadimage",
 			ev.UploadImage(),
+		)
+		apiRouter.With(emw, imwT).Put(
+			"/updateimage",
+			ev.UpdateImage(),
+		)
+		apiRouter.With(emw, imwT).Delete(
+			"/deleteimage",
+			ev.DeleteImage(),
 		)
 	})
 }
