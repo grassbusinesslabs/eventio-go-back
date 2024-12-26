@@ -316,3 +316,95 @@ func (c EventController) UpdateImage() http.HandlerFunc {
 		Success(w, map[string]string{"message": "File updated!", "path": filename})
 	}
 }
+
+func (c EventController) UploadUserImage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, _, err := r.FormFile("image")
+		if err != nil {
+			log.Printf("EventController -> UploadUserImage -> FormFile: %s", err)
+			BadRequest(w, err)
+			return
+		}
+		defer file.Close()
+
+		fileContent, err := io.ReadAll(file)
+		if err != nil {
+			log.Printf("EventController -> UploadUserImage -> ReadAll: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		user := r.Context().Value(UserKey).(domain.User)
+
+		filename := fmt.Sprintf("/users_images/%d.png", user.Id)
+		err = c.imageStorage.SaveImage(filename, fileContent)
+		if err != nil {
+			log.Printf("EventController -> UploadUserImage -> SaveImage: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		Success(w, map[string]string{"message": "File saved!", "path": filename})
+	}
+}
+
+func (c EventController) DeleteUserImage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		event := r.Context().Value(EventKey).(domain.Event)
+
+		filename := fmt.Sprintf("%d.png", event.Id)
+		err := c.imageStorage.DeleteImage(filename)
+		if err != nil {
+			log.Printf("EventController -> DeleteImage -> DeleteImage: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+		event.Image = ""
+		event, err = c.eventService.Update(event)
+		if err != nil {
+			log.Printf("EventController -> DeleteImage -> Update: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		Success(w, map[string]string{"message": "File deleted!"})
+	}
+}
+
+func (c EventController) UpdateUserImage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		event := r.Context().Value(EventKey).(domain.Event)
+
+		filename := fmt.Sprintf("%d.png", event.Id)
+		err := c.imageStorage.DeleteImage(filename)
+		if err != nil {
+			log.Printf("EventController -> UpdateImage -> DeleteImage: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		file, _, err := r.FormFile("image")
+		if err != nil {
+			log.Printf("EventController -> UpdateImage -> FormFile: %s", err)
+			BadRequest(w, err)
+			return
+		}
+		defer file.Close()
+
+		fileContent, err := io.ReadAll(file)
+		if err != nil {
+			log.Printf("EventController -> UpdateImage -> ReadAll: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		err = c.imageStorage.SaveImage(filename, fileContent)
+		if err != nil {
+			log.Printf("EventController -> UpdateImage -> SaveImage: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		Success(w, map[string]string{"message": "File updated!", "path": filename})
+	}
+}

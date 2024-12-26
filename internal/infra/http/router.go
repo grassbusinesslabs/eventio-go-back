@@ -24,7 +24,7 @@ func Router(cont container.Container) http.Handler {
 	router := chi.NewRouter()
 
 	router.Use(middleware.RedirectSlashes, middleware.Logger, cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*", "capacitor://localhost"},
+		AllowedOrigins:   []string{"https://*", "http://*", "http://localhost:5173", "capacitor://localhost"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
