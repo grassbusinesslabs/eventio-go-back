@@ -24,7 +24,7 @@ func Router(cont container.Container) http.Handler {
 	router := chi.NewRouter()
 
 	router.Use(middleware.RedirectSlashes, middleware.Logger, cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*", "http://localhost:5173", "capacitor://localhost"},
+		AllowedOrigins:   []string{"https://*", "http://*", "http://localhost:5173/events", "capacitor://localhost"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -68,7 +68,7 @@ func Router(cont container.Container) http.Handler {
 	})
 
 	router.Options("/static/*", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173/events")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.WriteHeader(http.StatusOK)
@@ -151,6 +151,18 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 		apiRouter.With(emw, imwT).Delete(
 			"/deleteimage",
 			ev.DeleteImage(),
+		)
+		apiRouter.With(emw, imwF).Post(
+			"/uploaduserimage",
+			ev.UploadUserImage(),
+		)
+		apiRouter.With(emw, imwT).Put(
+			"/updateuserimage",
+			ev.UpdateUserImage(),
+		)
+		apiRouter.With(emw, imwT).Delete(
+			"/deleteuserimage",
+			ev.DeleteUserImage(),
 		)
 	})
 }

@@ -336,7 +336,7 @@ func (c EventController) UploadUserImage() http.HandlerFunc {
 
 		user := r.Context().Value(UserKey).(domain.User)
 
-		filename := fmt.Sprintf("/users_images/%d.png", user.Id)
+		filename := fmt.Sprintf("/user_image/%d.png", user.Id)
 		err = c.imageStorage.SaveImage(filename, fileContent)
 		if err != nil {
 			log.Printf("EventController -> UploadUserImage -> SaveImage: %s", err)
