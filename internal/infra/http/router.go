@@ -59,6 +59,10 @@ func Router(cont container.Container) http.Handler {
 	})
 
 	router.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Дозволити запити з будь-якого домену (або обмежити конкретним доменом)
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 		workDir, _ := os.Getwd()
 		filesDir := http.Dir(filepath.Join(workDir, config.GetConfiguration().FileStorageLocation))
 		rctx := chi.RouteContext(r.Context())
