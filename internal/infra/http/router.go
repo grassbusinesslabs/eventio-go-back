@@ -67,6 +67,13 @@ func Router(cont container.Container) http.Handler {
 		fs.ServeHTTP(w, r)
 	})
 
+	router.Options("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.WriteHeader(http.StatusOK)
+	})
+
 	return router
 }
 
