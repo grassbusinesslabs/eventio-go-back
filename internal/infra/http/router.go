@@ -53,6 +53,7 @@ func Router(cont container.Container) http.Handler {
 
 				UserRouter(apiRouter, cont.UserController)
 				EventRouter(apiRouter, cont.EventController, cont.EventMw)
+				SubscriptionRouter(apiRouter, cont.SubscriptionController)
 				apiRouter.Handle("/*", NotFoundJSON())
 			})
 		})
@@ -99,6 +100,8 @@ func AuthRouter(r chi.Router, ac controllers.AuthController, amw func(http.Handl
 }
 
 func UserRouter(r chi.Router, uc controllers.UserController) {
+	uimwT := middlewares.UserImageMiddleware(true)
+	uimwF := middlewares.UserImageMiddleware(false)
 	r.Route("/users", func(apiRouter chi.Router) {
 		apiRouter.Get(
 			"/",
@@ -111,6 +114,18 @@ func UserRouter(r chi.Router, uc controllers.UserController) {
 		apiRouter.Delete(
 			"/",
 			uc.Delete(),
+		)
+		apiRouter.With(uimwF).Post(
+			"/uploaduserimage",
+			uc.UploadUserImage(),
+		)
+		apiRouter.With(uimwT).Put(
+			"/updateuserimage",
+			uc.UpdateUserImage(),
+		)
+		apiRouter.With(uimwT).Delete(
+			"/deleteuserimage",
+			uc.DeleteUserImage(),
 		)
 	})
 }
@@ -156,17 +171,18 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			"/deleteimage",
 			ev.DeleteImage(),
 		)
-		apiRouter.With(emw, imwF).Post(
-			"/uploaduserimage",
-			ev.UploadUserImage(),
+	})
+}
+
+func SubscriptionRouter(r chi.Router, ev controllers.SubscriptionController) {
+	r.Route("/subscription", func(apiRouter chi.Router) {
+		apiRouter.Post(
+			"/",
+			ev.Save(),
 		)
-		apiRouter.With(emw, imwT).Put(
-			"/updateuserimage",
-			ev.UpdateUserImage(),
-		)
-		apiRouter.With(emw, imwT).Delete(
-			"/deleteuserimage",
-			ev.DeleteUserImage(),
+		apiRouter.Delete(
+			"/",
+			ev.Delete(),
 		)
 	})
 }

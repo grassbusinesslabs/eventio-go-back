@@ -10,7 +10,7 @@ import (
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
 )
 
-func AvatarMiddleware(b bool) func(http.Handler) http.Handler {
+func UserImageMiddleware(b bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()

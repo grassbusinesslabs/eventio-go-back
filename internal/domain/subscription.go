@@ -1,6 +1,6 @@
 package domain
 
-type Signature struct {
+type Subscription struct {
 	Event_Id uint64
 	User_Id  uint64
 }

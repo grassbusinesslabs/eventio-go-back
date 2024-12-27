@@ -30,12 +30,14 @@ type Services struct {
 	app.AuthService
 	app.UserService
 	app.EventService
+	app.SubscriptionService
 }
 
 type Controllers struct {
-	AuthController  controllers.AuthController
-	UserController  controllers.UserController
-	EventController controllers.EventController
+	AuthController         controllers.AuthController
+	UserController         controllers.UserController
+	EventController        controllers.EventController
+	SubscriptionController controllers.SubscriptionController
 }
 
 func New(conf config.Configuration) Container {
@@ -45,16 +47,19 @@ func New(conf config.Configuration) Container {
 	sessionRepository := database.NewSessRepository(sess)
 	userRepository := database.NewUserRepository(sess)
 	eventRepository := database.NewEventRepository(sess)
+	subscriptionRepository := database.NewSubscrRepository(sess)
 
 	userService := app.NewUserService(userRepository)
 	authService := app.NewAuthService(sessionRepository, userRepository, tknAuth, conf.JwtTTL)
 	eventService := app.NewEventService(eventRepository)
+	subscriptionService := app.NewSubscriptionService(subscriptionRepository)
 
 	imageStorage := filesystem.NewImageStorageService(conf)
 
 	authController := controllers.NewAuthController(authService, userService)
-	userController := controllers.NewUserController(userService, authService)
+	userController := controllers.NewUserController(userService, authService, imageStorage)
 	eventController := controllers.NewEventController(eventService, imageStorage)
+	subscriptionController := controllers.NewSubscriptionController(subscriptionService)
 
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
 	eventMiddleware := middlewares.EventMiddleware(eventService)
@@ -68,11 +73,13 @@ func New(conf config.Configuration) Container {
 			authService,
 			userService,
 			eventService,
+			subscriptionService,
 		},
 		Controllers: Controllers{
 			authController,
 			userController,
 			eventController,
+			subscriptionController,
 		},
 	}
 }
