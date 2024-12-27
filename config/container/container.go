@@ -58,8 +58,8 @@ func New(conf config.Configuration) Container {
 
 	authController := controllers.NewAuthController(authService, userService)
 	userController := controllers.NewUserController(userService, authService, imageStorage)
-	eventController := controllers.NewEventController(eventService, imageStorage)
-	subscriptionController := controllers.NewSubscriptionController(subscriptionService)
+	eventController := controllers.NewEventController(eventService, subscriptionService, imageStorage)
+	subscriptionController := controllers.NewSubscriptionController(subscriptionService, eventService)
 
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
 	eventMiddleware := middlewares.EventMiddleware(eventService)

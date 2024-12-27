@@ -12,11 +12,13 @@ import (
 
 type SubscriptionController struct {
 	subscriptionService app.SubscriptionService
+	eventService        app.EventService
 }
 
-func NewSubscriptionController(ev app.SubscriptionService) SubscriptionController {
+func NewSubscriptionController(subs app.SubscriptionService, ev app.EventService) SubscriptionController {
 	return SubscriptionController{
-		subscriptionService: ev,
+		subscriptionService: subs,
+		eventService:        ev,
 	}
 }
 
@@ -65,5 +67,40 @@ func (c SubscriptionController) Delete() http.HandlerFunc {
 		}
 
 		Ok(w)
+	}
+}
+
+func (c SubscriptionController) FindUserSubs() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(UserKey).(domain.User)
+
+		subsId, err := c.subscriptionService.GetUserSubsId(user.Id)
+		if err != nil {
+			log.Printf("EventController -> Find -> c.subsService.CountByEvent: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		counts := make([]uint64, len(subsId))
+		events := make([]domain.Event, len(subsId))
+		for i, e := range subsId {
+			events[i], err = c.eventService.Find(e)
+			if err != nil {
+				log.Printf("EventController: %s", err)
+				return
+			}
+
+			count, err := c.subscriptionService.CountByEvent(e)
+			if err != nil {
+				log.Printf("EventController -> Find -> c.subsService.CountByEvent: %s", err)
+				InternalServerError(w, err)
+				return
+			}
+			counts[i] = count
+		}
+
+		var eventsDto resources.EventsDto
+		eventsDto = eventsDto.DomainToDto(events, counts)
+		Success(w, eventsDto)
 	}
 }

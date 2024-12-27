@@ -47,6 +47,31 @@ func (r SubscriptionRepository) Delete(t domain.Subscription) error {
 	return delete
 }
 
+func (r SubscriptionRepository) CountByEvent(event_Id uint64) (uint64, error) {
+	count, err := r.coll.Find(db.Cond{"event_id": event_Id}).Count()
+	if err != nil {
+		log.Printf("SubscriptionRepository -> CountByEvent: %v", err)
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r SubscriptionRepository) GetUserSubsId(user_Id uint64) ([]uint64, error) {
+	var subscriptions []subscription
+	err := r.coll.Find(db.Cond{"user_id": user_Id}).All(&subscriptions)
+	if err != nil {
+		log.Printf("SubscriptionRepository -> CountByEvent: %v", err)
+		return nil, err
+	}
+
+	var eventsId []uint64
+	for _, subsc := range subscriptions {
+		eventsId = append(eventsId, subsc.Event_Id)
+	}
+
+	return eventsId, nil
+}
+
 func (r SubscriptionRepository) mapDomainToModel(d domain.Subscription) subscription {
 	return subscription{
 		Event_Id: d.Event_Id,

@@ -184,6 +184,10 @@ func SubscriptionRouter(r chi.Router, ev controllers.SubscriptionController) {
 			"/",
 			ev.Delete(),
 		)
+		apiRouter.Get(
+			"/",
+			ev.FindUserSubs(),
+		)
 	})
 }
 

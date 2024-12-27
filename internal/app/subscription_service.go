@@ -10,6 +10,8 @@ import (
 type SubscriptionService interface {
 	Save(t domain.Subscription) (domain.Subscription, error)
 	Delete(t domain.Subscription) error
+	CountByEvent(event_Id uint64) (uint64, error)
+	GetUserSubsId(user_Id uint64) ([]uint64, error)
 }
 
 type subscriptionService struct {
@@ -39,4 +41,24 @@ func (s subscriptionService) Delete(t domain.Subscription) error {
 	}
 
 	return nil
+}
+
+func (s subscriptionService) CountByEvent(event_Id uint64) (uint64, error) {
+	count, err := s.subsRepo.CountByEvent(event_Id)
+	if err != nil {
+		log.Printf("subscriptionService: %s", err)
+		return count, err
+	}
+
+	return count, err
+}
+
+func (s subscriptionService) GetUserSubsId(user_Id uint64) ([]uint64, error) {
+	subsId, err := s.subsRepo.GetUserSubsId(user_Id)
+	if err != nil {
+		log.Printf("subscriptionService: %s", err)
+		return subsId, err
+	}
+
+	return subsId, err
 }
