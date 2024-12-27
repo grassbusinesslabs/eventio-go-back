@@ -16,10 +16,21 @@ type EventDto struct {
 	Location    string    `json:"location"`
 	Lat         float64   `json:"lat"`
 	Lon         float64   `json:"lon"`
-	Count       uint64    `json:"count,omitempty"`
 }
 
 type ShortEventDto struct {
+	Id          uint64    `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Date        time.Time `json:"date"`
+	Image       string    `json:"image"`
+	City        string    `json:"city"`
+	Location    string    `json:"location"`
+	Lat         float64   `json:"lat"`
+	Lon         float64   `json:"lon"`
+}
+
+type ShortEventDtoWC struct {
 	Id          uint64    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
@@ -36,13 +47,28 @@ type EventsDto struct {
 	Events []ShortEventDto `json:"events"`
 }
 
-func (d EventsDto) DomainToDto(ev []domain.Event, count []uint64) EventsDto {
+type EventsDtoWC struct {
+	Events []ShortEventDtoWC `json:"events"`
+}
+
+func (d EventsDto) DomainToDto(ev []domain.Event) EventsDto {
 	events := make([]ShortEventDto, len(ev))
 	for i, e := range ev {
-		events[i] = ShortEventDto{}.DomainToDto(e, count[i])
+		events[i] = ShortEventDto{}.DomainToDto(e)
 	}
 
 	return EventsDto{
+		Events: events,
+	}
+}
+
+func (d EventsDtoWC) DomainToDtoWC(ev []domain.Event, count []uint64) EventsDtoWC {
+	events := make([]ShortEventDtoWC, len(ev))
+	for i, e := range ev {
+		events[i] = ShortEventDtoWC{}.DomainToDtoWC(e, count[i])
+	}
+
+	return EventsDtoWC{
 		Events: events,
 	}
 }
@@ -61,8 +87,8 @@ func (d EventDto) DomainToDto(t domain.Event) EventDto {
 	}
 }
 
-func (d EventDto) DomainToDtoWC(t domain.Event, count uint64) EventDto {
-	return EventDto{
+func (d ShortEventDto) DomainToDto(t domain.Event) ShortEventDto {
+	return ShortEventDto{
 		Id:          t.Id,
 		Title:       t.Title,
 		Description: t.Description,
@@ -72,12 +98,11 @@ func (d EventDto) DomainToDtoWC(t domain.Event, count uint64) EventDto {
 		Location:    t.Location,
 		Lat:         t.Lat,
 		Lon:         t.Lon,
-		Count:       count,
 	}
 }
 
-func (d ShortEventDto) DomainToDto(t domain.Event, count uint64) ShortEventDto {
-	return ShortEventDto{
+func (d ShortEventDtoWC) DomainToDtoWC(t domain.Event, count uint64) ShortEventDtoWC {
+	return ShortEventDtoWC{
 		Id:          t.Id,
 		Title:       t.Title,
 		Description: t.Description,

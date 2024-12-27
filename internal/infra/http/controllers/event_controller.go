@@ -59,15 +59,8 @@ func (c EventController) Find() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		event := r.Context().Value(EventKey).(domain.Event)
 
-		count, err := c.subsService.CountByEvent(event.Id)
-		if err != nil {
-			log.Printf("EventController -> Find -> c.subsService.CountByEvent: %s", err)
-			InternalServerError(w, err)
-			return
-		}
-
 		var eventDto resources.EventDto
-		eventDto = eventDto.DomainToDtoWC(event, count)
+		eventDto = eventDto.DomainToDto(event)
 		Success(w, eventDto)
 	}
 }
@@ -105,18 +98,8 @@ func (c EventController) FindListBy() http.HandlerFunc {
 				return
 			}
 
-			counts := make([]uint64, len(events))
-			for i, e := range events {
-				count, err := c.subsService.CountByEvent(e.Id)
-				if err != nil {
-					log.Printf("EventController: %s", err)
-					return
-				}
-				counts[i] = count
-			}
-
 			var eventsDto resources.EventsDto
-			eventsDto = eventsDto.DomainToDto(events, counts)
+			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		} else if monthunix != "" {
 			monthunix, err := strconv.ParseUint(monthunix, 10, 64)
@@ -136,18 +119,8 @@ func (c EventController) FindListBy() http.HandlerFunc {
 				return
 			}
 
-			counts := make([]uint64, len(events))
-			for i, e := range events {
-				count, err := c.subsService.CountByEvent(e.Id)
-				if err != nil {
-					log.Printf("EventController: %s", err)
-					return
-				}
-				counts[i] = count
-			}
-
 			var eventsDto resources.EventsDto
-			eventsDto = eventsDto.DomainToDto(events, counts)
+			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		} else if yearunix != "" {
 			yearunix, err := strconv.ParseUint(yearunix, 10, 64)
@@ -167,18 +140,8 @@ func (c EventController) FindListBy() http.HandlerFunc {
 				return
 			}
 
-			counts := make([]uint64, len(events))
-			for i, e := range events {
-				count, err := c.subsService.CountByEvent(e.Id)
-				if err != nil {
-					log.Printf("EventController: %s", err)
-					return
-				}
-				counts[i] = count
-			}
-
 			var eventsDto resources.EventsDto
-			eventsDto = eventsDto.DomainToDto(events, counts)
+			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		} else {
 			events, err := c.eventService.FindListBy(str)
@@ -188,18 +151,8 @@ func (c EventController) FindListBy() http.HandlerFunc {
 				return
 			}
 
-			counts := make([]uint64, len(events))
-			for i, e := range events {
-				count, err := c.subsService.CountByEvent(e.Id)
-				if err != nil {
-					log.Printf("EventController: %s", err)
-					return
-				}
-				counts[i] = count
-			}
-
 			var eventsDto resources.EventsDto
-			eventsDto = eventsDto.DomainToDto(events, counts)
+			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		}
 	}
@@ -225,8 +178,8 @@ func (c EventController) FindListByUser() http.HandlerFunc {
 			counts[i] = count
 		}
 
-		var eventsDto resources.EventsDto
-		eventsDto = eventsDto.DomainToDto(events, counts)
+		var eventsDto resources.EventsDtoWC
+		eventsDto = eventsDto.DomainToDtoWC(events, counts)
 		Success(w, eventsDto)
 	}
 }

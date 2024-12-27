@@ -81,7 +81,6 @@ func (c SubscriptionController) FindUserSubs() http.HandlerFunc {
 			return
 		}
 
-		counts := make([]uint64, len(subsId))
 		events := make([]domain.Event, len(subsId))
 		for i, e := range subsId {
 			events[i], err = c.eventService.Find(e)
@@ -89,18 +88,10 @@ func (c SubscriptionController) FindUserSubs() http.HandlerFunc {
 				log.Printf("EventController: %s", err)
 				return
 			}
-
-			count, err := c.subscriptionService.CountByEvent(e)
-			if err != nil {
-				log.Printf("EventController -> Find -> c.subsService.CountByEvent: %s", err)
-				InternalServerError(w, err)
-				return
-			}
-			counts[i] = count
 		}
 
 		var eventsDto resources.EventsDto
-		eventsDto = eventsDto.DomainToDto(events, counts)
+		eventsDto = eventsDto.DomainToDto(events)
 		Success(w, eventsDto)
 	}
 }
