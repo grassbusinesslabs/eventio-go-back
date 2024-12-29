@@ -139,10 +139,6 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			"/",
 			ev.Save(),
 		)
-		apiRouter.With(emw).Get(
-			"/",
-			ev.Find(),
-		)
 		apiRouter.Get(
 			"/findlistby",
 			ev.FindListBy(),

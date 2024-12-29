@@ -27,6 +27,8 @@ type event struct {
 }
 
 type EventSearchParams struct {
+	Id        uint64
+	Ids       []uint64
 	City      string
 	DateDay   *time.Time
 	DateMonth *time.Time
@@ -61,18 +63,6 @@ func (r EventRepository) Save(t domain.Event) (domain.Event, error) {
 	return t, nil
 }
 
-func (r EventRepository) Find(id uint64) (domain.Event, error) {
-	var evn event
-
-	err := r.coll.Find(db.Cond{"id": id}).One(&evn)
-	if err != nil {
-		return domain.Event{}, err
-	}
-
-	ev := r.mapModelToDomain(evn)
-	return ev, nil
-}
-
 func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
 	var evns []event
 
@@ -87,6 +77,14 @@ func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
 
 func (r EventRepository) FindListBy(str EventSearchParams) ([]domain.Event, error) {
 	query := r.coll.Find(db.Cond{"deleted_date": nil})
+
+	if str.Id != 0 {
+		query = query.And(db.Cond{"id": str.Id})
+	}
+
+	if len(str.Ids) > 0 {
+		query = query.And(db.Cond{"id IN": str.Ids})
+	}
 
 	if str.City != "" {
 		query = query.And(db.Cond{"city": str.City})

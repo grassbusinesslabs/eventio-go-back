@@ -9,7 +9,6 @@ import (
 
 type EventService interface {
 	Save(event domain.Event) (domain.Event, error)
-	Find(id uint64) (domain.Event, error)
 	FindListBy(str database.EventSearchParams) ([]domain.Event, error)
 	FindListByUser(id uint64) ([]domain.Event, error)
 	Update(event domain.Event) (domain.Event, error)
@@ -30,15 +29,6 @@ func (s eventService) Save(t domain.Event) (domain.Event, error) {
 	evn, err := s.eventRepo.Save(t)
 	if err != nil {
 		log.Printf("EventService -> Save -> s.eventRepo.Save: %s", err)
-		return domain.Event{}, err
-	}
-	return evn, nil
-}
-
-func (s eventService) Find(id uint64) (domain.Event, error) {
-	evn, err := s.eventRepo.Find(id)
-	if err != nil {
-		log.Printf("EventService -> Find -> s.eventRepo.Find: %s", err)
 		return domain.Event{}, err
 	}
 	return evn, nil

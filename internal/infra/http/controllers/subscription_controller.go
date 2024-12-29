@@ -6,6 +6,7 @@ import (
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/requests"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/resources"
 )
@@ -81,13 +82,13 @@ func (c SubscriptionController) FindUserSubs() http.HandlerFunc {
 			return
 		}
 
-		events := make([]domain.Event, len(subsId))
-		for i, e := range subsId {
-			events[i], err = c.eventService.Find(e)
-			if err != nil {
-				log.Printf("EventController: %s", err)
-				return
-			}
+		var str database.EventSearchParams
+		str.Ids = subsId
+		events, err := c.eventService.FindListBy(str)
+		if err != nil {
+			log.Printf("EventController -> Find -> c.subsService.CountByEvent: %s", err)
+			InternalServerError(w, err)
+			return
 		}
 
 		var eventsDto resources.EventsDto

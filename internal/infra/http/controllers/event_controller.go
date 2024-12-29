@@ -55,18 +55,9 @@ func (c EventController) Save() http.HandlerFunc {
 	}
 }
 
-func (c EventController) Find() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		event := r.Context().Value(EventKey).(domain.Event)
-
-		var eventDto resources.EventDto
-		eventDto = eventDto.DomainToDto(event)
-		Success(w, eventDto)
-	}
-}
-
 func (c EventController) FindListBy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		Id := r.URL.Query().Get("id")
 		city := r.URL.Query().Get("city")
 		search := r.URL.Query().Get("search")
 		dayunix := r.URL.Query().Get("day")
@@ -75,6 +66,16 @@ func (c EventController) FindListBy() http.HandlerFunc {
 		location := r.URL.Query().Get("location")
 
 		var str database.EventSearchParams
+
+		if Id != "" {
+			Id, err := strconv.ParseUint(Id, 10, 64)
+			if err != nil {
+				log.Printf("EventController -> strconv.ParseUint: %s", err)
+				BadRequest(w, err)
+				return
+			}
+			str.Id = Id
+		}
 
 		str.City = city
 		str.Search = search

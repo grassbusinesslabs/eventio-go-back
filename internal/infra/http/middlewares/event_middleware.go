@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
+	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/http/controllers"
 )
 
@@ -21,7 +22,9 @@ func EventMiddleware(es app.EventService) func(http.Handler) http.Handler {
 				return
 			}
 
-			event, err := es.Find(eventId)
+			var str database.EventSearchParams
+			str.Id = eventId
+			event, err := es.FindListBy(str)
 			if err != nil {
 				log.Printf("EventMiddleware -> es.Find: %s", err)
 				controllers.InternalServerError(w, err)
