@@ -55,6 +55,30 @@ func (c EventController) Save() http.HandlerFunc {
 	}
 }
 
+func (c EventController) FindById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		IdStr := r.URL.Query().Get("id")
+
+		Id, err := strconv.ParseUint(IdStr, 10, 64)
+		if err != nil {
+			log.Printf("EventController -> strconv.ParseUint: %s", err)
+			BadRequest(w, err)
+			return
+		}
+
+		event, err := c.eventService.FindById(Id)
+		if err != nil {
+			log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		var eventDto resources.EventDto
+		eventDto = eventDto.DomainToDto(event)
+		Success(w, eventDto)
+	}
+}
+
 func (c EventController) FindListBy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		Id := r.URL.Query().Get("id")
@@ -64,22 +88,31 @@ func (c EventController) FindListBy() http.HandlerFunc {
 		monthunix := r.URL.Query().Get("month")
 		yearunix := r.URL.Query().Get("year")
 		location := r.URL.Query().Get("location")
+		user := r.URL.Query().Get("user")
+		page, err := requests.Bind(r, requests.Page{}, domain.Pagination{})
+		if err != nil {
+			log.Printf("EventController -> FindListBy -> requests.Bind: %s", err)
+			BadRequest(w, err)
+			return
+		}
 
 		var str database.EventSearchParams
 
 		if Id != "" {
-			Id, err := strconv.ParseUint(Id, 10, 64)
-			if err != nil {
-				log.Printf("EventController -> strconv.ParseUint: %s", err)
-				BadRequest(w, err)
-				return
-			}
-			str.Id = Id
+			user := r.Context().Value(UserKey).(domain.User)
+			str.User_Id = user.Id
 		}
 
 		str.City = city
 		str.Search = search
 		str.Location = location
+		str.Pagination = domain.Pagination{
+			Page:         page.Page,
+			CountPerPage: page.CountPerPage,
+		}
+		if user != "" {
+			str.User_Id = 1
+		}
 
 		if dayunix != "" {
 			dayunix, err := strconv.ParseUint(dayunix, 10, 64)
@@ -156,32 +189,6 @@ func (c EventController) FindListBy() http.HandlerFunc {
 			eventsDto = eventsDto.DomainToDto(events)
 			Success(w, eventsDto)
 		}
-	}
-}
-
-func (c EventController) FindListByUser() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(UserKey).(domain.User)
-		events, err := c.eventService.FindListByUser(user.Id)
-		if err != nil {
-			log.Printf("EventController -> FindList -> c.eventService.FindList: %s", err)
-			InternalServerError(w, err)
-			return
-		}
-
-		counts := make([]uint64, len(events))
-		for i, e := range events {
-			count, err := c.subsService.CountByEvent(e.Id)
-			if err != nil {
-				log.Printf("EventController: %s", err)
-				return
-			}
-			counts[i] = count
-		}
-
-		var eventsDto resources.EventsDtoWC
-		eventsDto = eventsDto.DomainToDtoWC(events, counts)
-		Success(w, eventsDto)
 	}
 }
 

@@ -45,31 +45,39 @@ type ShortEventDtoWC struct {
 
 type EventsDto struct {
 	Events []ShortEventDto `json:"events"`
+	Pages  uint64          `json:"pages"`
+	Total  uint64          `json:"total"`
 }
 
 type EventsDtoWC struct {
 	Events []ShortEventDtoWC `json:"events"`
+	Pages  uint64            `json:"pages"`
+	Total  uint64            `json:"total"`
 }
 
-func (d EventsDto) DomainToDto(ev []domain.Event) EventsDto {
-	events := make([]ShortEventDto, len(ev))
-	for i, e := range ev {
+func (d EventsDto) DomainToDto(ev domain.Events) EventsDto {
+	events := make([]ShortEventDto, len(ev.Items))
+	for i, e := range ev.Items {
 		events[i] = ShortEventDto{}.DomainToDto(e)
 	}
 
 	return EventsDto{
 		Events: events,
+		Pages:  ev.Pages,
+		Total:  ev.Total,
 	}
 }
 
-func (d EventsDtoWC) DomainToDtoWC(ev []domain.Event, count []uint64) EventsDtoWC {
-	events := make([]ShortEventDtoWC, len(ev))
-	for i, e := range ev {
+func (d EventsDtoWC) DomainToDtoWC(ev domain.Events, count []uint64) EventsDtoWC {
+	events := make([]ShortEventDtoWC, len(ev.Items))
+	for i, e := range ev.Items {
 		events[i] = ShortEventDtoWC{}.DomainToDtoWC(e, count[i])
 	}
 
 	return EventsDtoWC{
 		Events: events,
+		Pages:  ev.Pages,
+		Total:  ev.Total,
 	}
 }
 

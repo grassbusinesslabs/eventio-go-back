@@ -12,7 +12,7 @@ const EventsTableName = "events"
 
 type event struct {
 	Id          uint64     `db:"id,omitempty"`
-	User_Id     uint64     `db:"user_id,omitempty"`
+	User_Id     uint64     `db:"user_id"`
 	Title       string     `db:"title"`
 	Description string     `db:"description"`
 	Date        time.Time  `db:"date"`
@@ -21,20 +21,20 @@ type event struct {
 	Location    string     `db:"location"`
 	Lat         float64    `db:"lat"`
 	Lon         float64    `db:"lon"`
-	CreatedDate time.Time  `db:"created_date,omitempty"`
-	UpdatedDate time.Time  `db:"updated_date,omitempty"`
+	CreatedDate time.Time  `db:"created_date"`
+	UpdatedDate time.Time  `db:"updated_date"`
 	DeletedDate *time.Time `db:"deleted_date,omitempty"`
 }
 
 type EventSearchParams struct {
-	Id        uint64
-	Ids       []uint64
-	City      string
-	DateDay   *time.Time
-	DateMonth *time.Time
-	DateYear  *time.Time
-	Search    string
-	Location  string
+	User_Id    uint64
+	City       string
+	DateDay    *time.Time
+	DateMonth  *time.Time
+	DateYear   *time.Time
+	Search     string
+	Location   string
+	Pagination domain.Pagination
 }
 
 type EventRepository struct {
@@ -63,27 +63,21 @@ func (r EventRepository) Save(t domain.Event) (domain.Event, error) {
 	return t, nil
 }
 
-func (r EventRepository) FindListByUser(id uint64) ([]domain.Event, error) {
-	var evns []event
-
-	err := r.coll.Find(db.Cond{"user_id": id, "deleted_date": nil}).OrderBy("-date").All(&evns)
+func (r EventRepository) FindById(id uint64) (domain.Event, error) {
+	var evn event
+	err := r.coll.Find(db.Cond{"id": id}).One(&evn)
 	if err != nil {
-		return nil, err
+		return domain.Event{}, err
 	}
-
-	evs := r.mapModelToDomainCollection(evns)
-	return evs, nil
+	ev := r.mapModelToDomain(evn)
+	return ev, nil
 }
 
-func (r EventRepository) FindListBy(str EventSearchParams) ([]domain.Event, error) {
+func (r EventRepository) FindListBy(str EventSearchParams) (domain.Events, error) {
 	query := r.coll.Find(db.Cond{"deleted_date": nil})
 
-	if str.Id != 0 {
-		query = query.And(db.Cond{"id": str.Id})
-	}
-
-	if len(str.Ids) > 0 {
-		query = query.And(db.Cond{"id IN": str.Ids})
+	if str.User_Id != 0 {
+		query = query.And(db.Cond{"user_id": str.User_Id})
 	}
 
 	if str.City != "" {
@@ -118,14 +112,31 @@ func (r EventRepository) FindListBy(str EventSearchParams) ([]domain.Event, erro
 		query = query.And(db.Raw(`(LOWER(location) LIKE ?)`, location))
 	}
 
+	paginate := query.Paginate(uint(str.Pagination.CountPerPage))
 	var evns []event
-	err := query.OrderBy("-date").All(&evns)
+
+	err := paginate.Page(uint(str.Pagination.Page)).All(&evns)
 	if err != nil {
-		return nil, err
+		return domain.Events{}, err
 	}
 
-	evs := r.mapModelToDomainCollection(evns)
-	return evs, nil
+	count, err := query.TotalEntries()
+	if err != nil {
+		return domain.Events{}, err
+	}
+
+	pages, err := paginate.TotalPages()
+	if err != nil {
+		return domain.Events{}, err
+	}
+
+	result := domain.Events{
+		Items: r.mapModelToDomainCollection(evns),
+		Pages: uint64(pages),
+		Total: count,
+	}
+
+	return result, nil
 }
 
 func (r EventRepository) Update(t domain.Event) (domain.Event, error) {

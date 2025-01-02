@@ -2,14 +2,15 @@ package app
 
 import (
 	"errors"
+	"log"
+	"time"
+
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/infra/database"
 	"github.com/upper/db/v4"
 	"golang.org/x/crypto/bcrypt"
-	"log"
-	"time"
 )
 
 type AuthService interface {
