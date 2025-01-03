@@ -81,14 +81,15 @@ func (c EventController) FindById() http.HandlerFunc {
 
 func (c EventController) FindListBy() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		Id := r.URL.Query().Get("id")
+		user := r.Context().Value(UserKey).(domain.User)
+
 		city := r.URL.Query().Get("city")
 		search := r.URL.Query().Get("search")
 		dayunix := r.URL.Query().Get("day")
 		monthunix := r.URL.Query().Get("month")
 		yearunix := r.URL.Query().Get("year")
 		location := r.URL.Query().Get("location")
-		user := r.URL.Query().Get("user")
+		userStr := r.URL.Query().Get("user")
 		pageStr := r.URL.Query().Get("page")
 		page, err := strconv.ParseUint(pageStr, 10, 64)
 		if err != nil {
@@ -99,8 +100,7 @@ func (c EventController) FindListBy() http.HandlerFunc {
 
 		var str database.EventSearchParams
 
-		if Id != "" {
-			user := r.Context().Value(UserKey).(domain.User)
+		if userStr != "" {
 			str.User_Id = user.Id
 		}
 
@@ -110,9 +110,6 @@ func (c EventController) FindListBy() http.HandlerFunc {
 		str.Pagination = domain.Pagination{
 			Page:         page,
 			CountPerPage: 15,
-		}
-		if user != "" {
-			str.User_Id = 1
 		}
 
 		if dayunix != "" {
