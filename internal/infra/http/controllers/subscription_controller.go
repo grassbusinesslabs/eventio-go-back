@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
@@ -106,10 +107,15 @@ func (c SubscriptionController) FindUserSubs() http.HandlerFunc {
 			result.Items = append(result.Items, event)
 		}
 
+		sort.Slice(result.Items, func(i, j int) bool {
+			return result.Items[i].Date.After(result.Items[j].Date)
+		})
+
+		result.Pages = total.Pages
+		result.Total = total.Total
+
 		var eventsDto resources.EventsDto
 		eventsDto = eventsDto.DomainToDto(result)
-		eventsDto.Pages = uint64((total + pagination.CountPerPage - 1) / pagination.CountPerPage)
-		eventsDto.Total = total
 
 		Success(w, eventsDto)
 	}

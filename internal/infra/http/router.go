@@ -143,6 +143,10 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 			"/find",
 			ev.FindListBy(),
 		)
+		apiRouter.Get(
+			"/findbyid",
+			ev.FindById(),
+		)
 		apiRouter.With(emw, isOwner).Put(
 			"/update",
 			ev.Update(),

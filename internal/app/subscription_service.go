@@ -11,7 +11,7 @@ type SubscriptionService interface {
 	Save(t domain.Subscription) (domain.Subscription, error)
 	Delete(t domain.Subscription) error
 	CountByEvent(event_Id uint64) (uint64, error)
-	GetUserSubsId(user_Id uint64, page domain.Pagination) ([]uint64, uint64, error)
+	GetUserSubsId(user_Id uint64, page domain.Pagination) ([]uint64, domain.Page, error)
 }
 
 type subscriptionService struct {
@@ -53,7 +53,7 @@ func (s subscriptionService) CountByEvent(event_Id uint64) (uint64, error) {
 	return count, err
 }
 
-func (s subscriptionService) GetUserSubsId(user_Id uint64, page domain.Pagination) ([]uint64, uint64, error) {
+func (s subscriptionService) GetUserSubsId(user_Id uint64, page domain.Pagination) ([]uint64, domain.Page, error) {
 	subsId, total, err := s.subsRepo.GetUserSubsId(user_Id, page)
 	if err != nil {
 		log.Printf("subscriptionService: %s", err)

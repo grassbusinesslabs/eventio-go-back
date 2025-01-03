@@ -56,7 +56,7 @@ func (r SubscriptionRepository) CountByEvent(event_Id uint64) (uint64, error) {
 	return count, nil
 }
 
-func (r SubscriptionRepository) GetUserSubsId(user_Id uint64, p domain.Pagination) ([]uint64, uint64, error) {
+func (r SubscriptionRepository) GetUserSubsId(user_Id uint64, p domain.Pagination) ([]uint64, domain.Page, error) {
 	var subscriptions []subscription
 
 	res := r.coll.Find(db.Cond{"user_id": user_Id})
@@ -65,18 +65,19 @@ func (r SubscriptionRepository) GetUserSubsId(user_Id uint64, p domain.Paginatio
 	err := paginate.Page(uint(p.Page)).All(&subscriptions)
 	if err != nil {
 		log.Printf("SubscriptionRepository -> GetUserSubsId -> Paginate: %v", err)
-		return nil, 0, err
+		return nil, domain.Page{}, err
 	}
 
 	total, err := res.TotalEntries()
 	if err != nil {
 		log.Printf("SubscriptionRepository -> GetUserSubsId -> TotalEntries: %v", err)
-		return nil, 0, err
+		return nil, domain.Page{}, err
 	}
 
-	//pages, err := paginate.TotalPages()
+	pages, err := paginate.TotalPages()
 	if err != nil {
-		return nil, 0, err
+		log.Printf("SubscriptionRepository -> GetUserSubsId -> TotalPages: %v", err)
+		return nil, domain.Page{}, err
 	}
 
 	var eventsId []uint64
@@ -84,7 +85,12 @@ func (r SubscriptionRepository) GetUserSubsId(user_Id uint64, p domain.Paginatio
 		eventsId = append(eventsId, subsc.Event_Id)
 	}
 
-	return eventsId, uint64(total), nil
+	page := domain.Page{
+		Pages: uint64(pages),
+		Total: total,
+	}
+
+	return eventsId, page, nil
 }
 
 func (r SubscriptionRepository) mapDomainToModel(d domain.Subscription) subscription {

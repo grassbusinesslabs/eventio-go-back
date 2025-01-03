@@ -12,7 +12,7 @@ const EventsTableName = "events"
 
 type event struct {
 	Id          uint64     `db:"id,omitempty"`
-	User_Id     uint64     `db:"user_id"`
+	UserId      uint64     `db:"user_id"`
 	Title       string     `db:"title"`
 	Description string     `db:"description"`
 	Date        time.Time  `db:"date"`
@@ -115,7 +115,7 @@ func (r EventRepository) FindListBy(str EventSearchParams) (domain.Events, error
 	paginate := query.Paginate(uint(str.Pagination.CountPerPage))
 	var evns []event
 
-	err := paginate.Page(uint(str.Pagination.Page)).All(&evns)
+	err := paginate.Page(uint(str.Pagination.Page)).OrderBy("-date").All(&evns)
 	if err != nil {
 		return domain.Events{}, err
 	}
@@ -156,7 +156,7 @@ func (r EventRepository) Delete(id uint64) error {
 func (r EventRepository) mapDomainToModel(d domain.Event) event {
 	return event{
 		Id:          d.Id,
-		User_Id:     d.User_Id,
+		UserId:      d.User_Id,
 		Title:       d.Title,
 		Description: d.Description,
 		Date:        d.Date,
@@ -174,7 +174,7 @@ func (r EventRepository) mapDomainToModel(d domain.Event) event {
 func (r EventRepository) mapModelToDomain(m event) domain.Event {
 	return domain.Event{
 		Id:          m.Id,
-		User_Id:     m.User_Id,
+		User_Id:     m.UserId,
 		Title:       m.Title,
 		Description: m.Description,
 		Date:        m.Date,
