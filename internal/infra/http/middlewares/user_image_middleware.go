@@ -26,12 +26,6 @@ func UserImageMiddleware(b bool) func(http.Handler) http.Handler {
 					controllers.Forbidden(w, err)
 					return
 				}
-			} else {
-				if err == nil {
-					err := errors.New("Image already exists!")
-					controllers.Forbidden(w, err)
-					return
-				}
 			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))

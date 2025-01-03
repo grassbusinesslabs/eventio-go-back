@@ -21,13 +21,7 @@ func ImageMiddleware(b bool) func(http.Handler) http.Handler {
 				return
 			}
 
-			if !b {
-				if event.Image != "" {
-					err := errors.New("Image already exists!")
-					controllers.Forbidden(w, err)
-					return
-				}
-			} else if b {
+			if b {
 				if event.Image == "" {
 					err := errors.New("Image doesn't exist!")
 					controllers.Forbidden(w, err)

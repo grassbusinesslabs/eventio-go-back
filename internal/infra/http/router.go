@@ -119,10 +119,6 @@ func UserRouter(r chi.Router, uc controllers.UserController) {
 			"/image",
 			uc.UploadUserImage(),
 		)
-		apiRouter.With(uimwT).Put(
-			"/image",
-			uc.UpdateUserImage(),
-		)
 		apiRouter.With(uimwT).Delete(
 			"/image",
 			uc.DeleteUserImage(),
@@ -158,10 +154,6 @@ func EventRouter(r chi.Router, ev controllers.EventController, emw func(http.Han
 		apiRouter.With(emw, imwF).Post(
 			"/image",
 			ev.UploadImage(),
-		)
-		apiRouter.With(emw, imwT).Put(
-			"/image",
-			ev.UpdateImage(),
 		)
 		apiRouter.With(emw, imwT).Delete(
 			"/image",
