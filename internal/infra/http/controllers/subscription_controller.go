@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/grassbusinesslabs/eventio-go-back/internal/app"
 	"github.com/grassbusinesslabs/eventio-go-back/internal/domain"
@@ -74,25 +75,42 @@ func (c SubscriptionController) FindUserSubs() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user := r.Context().Value(UserKey).(domain.User)
 
-		subsId, err := c.subscriptionService.GetUserSubsId(user.Id)
+		pageStr := r.URL.Query().Get("page")
+		page, err := strconv.ParseUint(pageStr, 10, 64)
 		if err != nil {
-			log.Printf("EventController -> Find -> c.subsService.CountByEvent: %s", err)
+			log.Printf("EventController -> strconv.ParseUint: %s", err)
+			BadRequest(w, err)
+			return
+		}
+
+		pagination := domain.Pagination{
+			Page:         page,
+			CountPerPage: 15,
+		}
+
+		subsId, total, err := c.subscriptionService.GetUserSubsId(user.Id, pagination)
+		if err != nil {
+			log.Printf("SubscriptionController -> FindUserSubs -> GetUserSubsId: %s", err)
 			InternalServerError(w, err)
 			return
 		}
 
-		result := domain.Events{}
-
-		for i, e := range subsId {
-			result.Items[i], err = c.eventService.FindById(e)
+		var result domain.Events
+		for _, e := range subsId {
+			event, err := c.eventService.FindById(e)
 			if err != nil {
-				log.Printf("EventController: %s", err)
+				log.Printf("SubscriptionController -> FindUserSubs -> FindById: %s", err)
+				InternalServerError(w, err)
 				return
 			}
+			result.Items = append(result.Items, event)
 		}
 
 		var eventsDto resources.EventsDto
 		eventsDto = eventsDto.DomainToDto(result)
+		eventsDto.Pages = uint64((total + pagination.CountPerPage - 1) / pagination.CountPerPage)
+		eventsDto.Total = total
+
 		Success(w, eventsDto)
 	}
 }

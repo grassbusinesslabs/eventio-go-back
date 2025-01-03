@@ -89,9 +89,10 @@ func (c EventController) FindListBy() http.HandlerFunc {
 		yearunix := r.URL.Query().Get("year")
 		location := r.URL.Query().Get("location")
 		user := r.URL.Query().Get("user")
-		page, err := requests.Bind(r, requests.Page{}, domain.Pagination{})
+		pageStr := r.URL.Query().Get("page")
+		page, err := strconv.ParseUint(pageStr, 10, 64)
 		if err != nil {
-			log.Printf("EventController -> FindListBy -> requests.Bind: %s", err)
+			log.Printf("EventController -> strconv.ParseUint: %s", err)
 			BadRequest(w, err)
 			return
 		}
@@ -107,8 +108,8 @@ func (c EventController) FindListBy() http.HandlerFunc {
 		str.Search = search
 		str.Location = location
 		str.Pagination = domain.Pagination{
-			Page:         page.Page,
-			CountPerPage: page.CountPerPage,
+			Page:         page,
+			CountPerPage: 15,
 		}
 		if user != "" {
 			str.User_Id = 1
